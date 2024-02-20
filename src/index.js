@@ -8,7 +8,7 @@ const port = Number(process.env.PORT) || 8181;
 
 app.use(express.static(path.join(__dirname, 'public')));
 // HTTP logger
-app.use(morgan('combined'));
+// app.use(morgan('combined'));
 
 // Template engine
 app.engine('hbs', exphbs({
@@ -26,6 +26,14 @@ app.get('/', (req, res) => {
 
 app.get('/project', (req, res) => {
    res.render('project');
+})
+
+app.get('/search', (req, res) => {
+   res.render('search');
+})
+
+app.get('/login', (req, res) => {
+   res.render('login');
 })
 
 app.listen(port, () => console.log(`Server running on: ${port}!`));
