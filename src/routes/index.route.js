@@ -33,6 +33,10 @@ const routers = (app) => {
       res.render('login');
    })
 
+   app.get('/register', (req, res) => {
+      res.render('register');
+   })
+
    app.post('/search', (req, res) => {
       res.send('');
    })
