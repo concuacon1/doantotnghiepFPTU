@@ -5,6 +5,7 @@ const exphbs = require('express-handlebars').engine;
 const app = express();
 const dotenv = require("dotenv");
 const port = Number(process.env.PORT) || 8181;
+const routers = require("./routes/index.route");
 
 app.use(express.static(path.join(__dirname, 'public')));
 // HTTP logger
@@ -19,22 +20,8 @@ app.engine('hbs', exphbs({
 app.set('view engine', 'hbs');
 
 app.set('views', path.join(__dirname + '/resources/views'));
-
-app.get('/', (req, res) => {
-   res.render('home');
-})
-
-app.get('/project', (req, res) => {
-   res.render('project');
-})
-
-app.get('/search', (req, res) => {
-   res.render('search');
-})
-
-app.get('/login', (req, res) => {
-   res.render('login');
-})
+//Router init
+routers(app);
 
 app.listen(port, () => console.log(`Server running on: ${port}!`));
 // dotenv.config();
