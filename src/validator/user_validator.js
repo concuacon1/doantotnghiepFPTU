@@ -2,7 +2,7 @@ const { enum_role } = require("../common/enum.database")
 const minFullName = 5
 const maxFullName = 100
 
-const createUserValidatorSchema ={
+const createUserValidatorSchema = {
     fullName: {
         notEmpty: {
             errorMessage: "Username không được để trống"
@@ -64,6 +64,7 @@ const createUserValidatorSchema ={
     }
 }
 
+
 const validatorPasswordChange = {
     passwordOld: {
         notEmpty: {
@@ -89,6 +90,8 @@ const validatorPasswordChange = {
         }
     },
 }
+
+
 const validatorPasswordChangeOTP = {
     passwordNew: {
         notEmpty: {

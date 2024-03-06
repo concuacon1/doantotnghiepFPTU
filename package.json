@@ -4,28 +4,32 @@
   "description": "noi that vu gia",
   "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon --inspect src/index.js",
-    "watch": "node-sass -w src/resources/scss/ -o src/public/css/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon server.js",
+    "run-email": "nodemon src/queue/emailProcessor.js",
+    "start": "concurrently \"npm run server\" \"npm run run-email\""
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "bull": "^4.12.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.18.2",
-    "express-handlebars": "^7.1.2",
-    "handlebars": "^4.7.8",
-    "mongoose": "^8.1.3",
-    "morgan": "^1.10.0",
-    "node-sass": "^9.0.0",
-    "nodemon": "^3.0.3"
+    "express": "^4.18.3",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^5.13.14",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.11",
+    "nodemailer-smtp-transport": "^2.7.4",
+    "redis": "^4.6.13"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/concuacon1/doantotnghiepFPTU.git"
-  },
-  "bugs": {
-    "url": "https://github.com/concuacon1/doantotnghiepFPTU/issues"
-  },
-  "homepage": "https://github.com/concuacon1/doantotnghiepFPTU#readme"
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.0"
+  }
 }
