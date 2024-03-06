@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
+const { enum_role } = require("../common/enum.database")
 
 const USER_MODEL = "users";
 
-const userSchema = new mongoose.Schema(
+const userSchema = new Schema(
   {
     firstName: {
       type: String,
@@ -34,12 +36,16 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["ADMIN", "CUSTOMER"],
+      enum: enum_role,
       required: true,
     },
     password: {
       type: String,
       required: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: false
     },
   },
   { timestamps: true, collection: USER_MODEL },

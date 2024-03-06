@@ -4,7 +4,14 @@ const {
 } = require("../../services/user/user.service");
 
 const getUserController = (req, res) => {
-   return res.status(200).json({ user: "John Doe" });
+   return res.status(200).json({
+      user: "Dao Duc",
+      phone_number: "0912634289",
+      address: "Ha Noi",
+      email: "ducdm@gmail.com",
+      gender: "Male",
+      role: "ADMIN"
+   });
 };
 
 const createUserController = async (req, res) => {

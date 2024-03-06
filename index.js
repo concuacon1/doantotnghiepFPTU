@@ -5,7 +5,7 @@ const exphbs = require('express-handlebars').engine;
 const app = express();
 const dotenv = require("dotenv");
 const port = Number(process.env.PORT) || 8181;
-const routers = require("./routes/index.route");
+const routers = require("./src/routes/index.route");
 
 app.use(express.static(path.join(__dirname, 'public')));
 // HTTP logger
