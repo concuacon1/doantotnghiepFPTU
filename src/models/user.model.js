@@ -23,27 +23,53 @@ const userSchema = new Schema(
       required: false,
       default: null,
     },
+    userCode: {
+      type: String,
+      default: ""
+    },
+    address: {
+      type: String
+    },
     email: {
       type: String,
       maxlength: 64,
       minlength: 1,
       required: true,
     },
+    phoneNumber: {
+      type: String
+    },
+    dob: {
+      type: Date,
+      default: ""
+    },
     gender: {
       type: String,
       enum: ["MALE", "FEMALE"],
-      required: true,
-    },
-    role: {
-      type: String,
-      enum: enum_role,
       required: true,
     },
     password: {
       type: String,
       required: true,
     },
+    code_change_password: {
+      type: String,
+      default: ""
+    },
+    description: {
+      type: String,
+      default: ""
+    },
+    role: {
+      type: String,
+      enum: enum_role,
+      required: true,
+    },
     isActive: {
+      type: Boolean,
+      default: true
+    },
+    isDelete: {
       type: Boolean,
       default: false
     },
