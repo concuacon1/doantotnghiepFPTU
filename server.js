@@ -32,7 +32,8 @@ const storage = multer.diskStorage({
    },
 });
 
-app.use("/api", require('./src/routes/user'))
+require('./src/queue/emailWorker');
+app.use("/api", require('./src/routes/user.route'))
 
 app.get('/', function (req, res) {
    res.send('Hello World!');
