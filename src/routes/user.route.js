@@ -1,19 +1,26 @@
-const express = require("express");
+const router = require('express').Router()
+const User = require('./../controllers/user.controller')
+const { checkSchema } = require("express-validator")
+const { createUserValidatorSchema, validatorPasswordChange, validatorPasswordChangeOTP } = require("../validator/user_validator")
+const { authmiddleware } = require('../middleware/authmiddleware')
+const { rolemiddleware } = require('../middleware/rolemiddleware');
+const { errordatamiddleware } = require('../middleware/errordatamiddleware');
+const multer = require('multer');
+const path = require('path');
+router.post('/register', checkSchema(createUserValidatorSchema), User.register_user)
+router.route('/login_email').post(User.login_email)
+router.route('/login_phone').post(User.login_phone)
+router.get('/list_user_role_admin', authmiddleware, (req, res, next) => {
+   req.dataRole = { list_role: ['ADMIN'] };
+   next();
+}, rolemiddleware, User.get_list_user);
 
-const {
-   getUserController,
-   createUserController,
-   getUserByIdController,
-} = require("../../src/app/controllers/users/user.controller");
+router.post('/search_user_role_admin', authmiddleware, (req, res, next) => {
+   req.dataRole = { list_role: ['ADMIN'] };
+   next();
+}, rolemiddleware, User.search_list_user);
 
-module.exports = async (router) => {
-   //prefix
-   router.use("/user/", router);
-
-   //api
-   //localhost:8181/api/user/get-user
-   //localhost:8282/api/user/create-user
-   router.get("/get-user", getUserController)
-   router.post("/create-user", createUserController)
-   router.get("/get-user-by-id/:id", getUserByIdController)
-};
+router.delete('/delete_user/:id', authmiddleware, (req, res, next) => {
+   req.dataRole = { list_role: ['ADMIN'] };
+   next();
+}, rolemiddleware, User.delete_user);
