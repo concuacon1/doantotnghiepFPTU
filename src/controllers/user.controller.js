@@ -1,7 +1,7 @@
 const {
    createUser,
    getUserByIdSevice,
-} = require("../../services/user/user.service");
+} = require("../services/user/user.service");
 
 const getUserController = (req, res) => {
    return res.status(200).json({ user: "John Doe" });
