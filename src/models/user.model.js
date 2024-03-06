@@ -1,48 +1,57 @@
-const mongoose = require("mongoose");
 
-const USER_MODEL = "users";
 
-const userSchema = new mongoose.Schema(
-  {
-    firstName: {
-      type: String,
-      maxlength: 32,
-      minlength: 1,
-      required: true,
-    },
-    lastName: {
-      type: String,
-      maxlength: 32,
-      minlength: 1,
-      required: true,
-    },
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const {enum_role} = require("../common/enum.database")
+
+const UserSchema = new Schema({
     fullName: {
-      type: String,
-      required: false,
-      default: null,
+        type: String,
     },
     email: {
-      type: String,
-      maxlength: 64,
-      minlength: 1,
-      required: true,
-    },
-    gender: {
-      type: String,
-      enum: ["MALE", "FEMALE"],
-      required: true,
-    },
-    role: {
-      type: String,
-      enum: ["ADMIN", "CUSTOMER"],
-      required: true,
+        type: String,
     },
     password: {
-      type: String,
-      required: true,
+        type: String
     },
-  },
-  { timestamps: true, collection: USER_MODEL },
-);
+    userCode: {
+        type: String,
+        default: ""
+    },
+    address: {
+        type: String
+    },
+    dob: {
+        type: Date,
+        default: ""
+    },
+    gender: {
+        type: String
+    },
+    code_change_password: {
+        type: String,
+        default: ""
+    },
+    phoneNumber: {
+        type: String
+    },
+    description: {
+        type: String,
+        default: ""
+    },
+    role: {
+        type: String,
+        enum: enum_role,
+      },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    isDelete : {
+        type: Boolean,
+        default: true
+    },
 
-module.exports = mongoose.model(USER_MODEL, userSchema);
+}, { timestamps: true })
+
+module.exports = mongoose.model("users", UserSchema)
