@@ -11,19 +11,19 @@ router.post('/register', checkSchema(createUserValidatorSchema), User.register_u
 router.route('/login_email').post(User.login_email)
 router.route('/login_phone').post(User.login_phone)
 router.get('/list_user_role_admin', authmiddleware, (req, res, next) => {
-   req.dataRole = { list_role: ['ADMIN'] };
-   next();
+    req.dataRole = { list_role: ['ADMIN'] };
+    next();
 }, rolemiddleware, User.get_list_user);
 
 router.post('/search_user_role_admin', authmiddleware, (req, res, next) => {
-   req.dataRole = { list_role: ['ADMIN'] };
-   next();
+    req.dataRole = { list_role: ['ADMIN'] };
+    next();
 }, rolemiddleware, User.search_list_user);
 
 
 router.delete('/delete_user/:id', authmiddleware, (req, res, next) => {
-   req.dataRole = { list_role: ['ADMIN'] };
-   next();
+    req.dataRole = { list_role: ['ADMIN'] };
+    next();
 }, rolemiddleware, User.delete_user);
 
 router.post('/change-password', checkSchema(validatorPasswordChange), authmiddleware, User.change_password);
@@ -33,13 +33,13 @@ router.post('/send-otp', User.send_otp);
 router.post('/change-password-otp', checkSchema(validatorPasswordChangeOTP), errordatamiddleware, User.change_password_otp);
 
 const storage = multer.diskStorage({
-   destination: function (req, file, cb) {
-      cb(null, 'src/uploads');
-   },
-   filename: function (req, file, cb) {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-   },
+    destination: function (req, file, cb) {
+        cb(null, 'src/uploads');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    },
 });
 
 const upload = multer({ storage: storage });
