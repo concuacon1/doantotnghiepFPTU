@@ -33,7 +33,14 @@ const storage = multer.diskStorage({
 });
 
 require('./src/queue/emailWorker');
-app.use("/api", require('./src/routes/user.route'))
+app.use("/api", require('./src/routes/user'))
+app.use("/api", require('./src/routes/project.route'))
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'src')));
+
+// Additional static folder for images 
+app.use('/img', express.static(path.join(__dirname, 'src/uploads')));
+
 
 app.get('/', function (req, res) {
    res.send('Hello World!');
