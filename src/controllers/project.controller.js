@@ -57,12 +57,12 @@ const project = {
     create_project_category: async (req, res) => {
         const data = req.body;
         const { listCategory } = req.body;
-        const datasave = new ProjectSchema({ 
+        const datasave = new ProjectSchema({
             ...data,
         })
         const dataCreate = await datasave.save();
         for (let index = 0; index < listCategory.length; index++) {
-            const datasaveCategory = new CategoriesSchema({ 
+            const datasaveCategory = new CategoriesSchema({
                 categoriesName: listCategory[index].categoriesName,
                 images: listCategory[index].images,
                 projectIds: dataCreate._id,
@@ -91,23 +91,23 @@ const project = {
         })
     },
     get_project_category_id: async (req, res) => {
-        const { id } = req.params; 
+        const { id } = req.params;
         // projectIds
-      const data = await ProjectSchema.aggregate([
-        { 
-            $match: {
-                _id: mongoose.Types.ObjectId(id),
+        const data = await ProjectSchema.aggregate([
+            {
+                $match: {
+                    _id: mongoose.Types.ObjectId(id),
+                },
             },
-        },
-        {
-            $lookup: {
-                from: 'categories', // The name of the collection to join
-                localField: '_id', // Assuming projectIds is an array of ObjectId
-                foreignField: 'projectIds',
-                as: 'categoryData',
+            {
+                $lookup: {
+                    from: 'categories', // The name of the collection to join
+                    localField: '_id', // Assuming projectIds is an array of ObjectId
+                    foreignField: 'projectIds',
+                    as: 'categoryData',
+                },
             },
-        },
-    ]);
+        ]);
 
 
         return res.json({
