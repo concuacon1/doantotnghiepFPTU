@@ -3,7 +3,7 @@ const router = express.Router();
 const Designer = require('../models/designer.model');
 
 // Get all designers
-router.get('/', async (req, res) => {
+router.get('/list_designers', async (req, res) => {
     try {
         const designers = await Designer.find();
         res.json(designers);
@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
 });
 
 // Create a new designer
-router.post('/', async (req, res) => {
+router.post('/add_designer', async (req, res) => {
     const designer = new Designer({
         name: req.body.name,
         email: req.body.email,
@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
 });
 
 // Update designer
-router.patch('/:id', async (req, res) => {
+router.patch('/edit_designer/:id', async (req, res) => {
     try {
         const designer = await Designer.findById(req.params.id);
         if (req.body.name) {
@@ -48,7 +48,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 // Delete designer
-router.delete('/:id', async (req, res) => {
+router.delete('/delete_designer/:id', async (req, res) => {
     try {
         const designer = await Designer.findById(req.params.id);
         await designer.remove();
