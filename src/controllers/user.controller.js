@@ -246,6 +246,13 @@ const user = {
          res.json({ success: false, message: 'File upload failed' });
       }
    },
+   uploadMultiFile: async (req, res) => {
+      if (req.files) {
+         res.json({ success: true, fileNames: req.files });
+      } else {
+         res.json({ success: false, message: 'File upload failed' });
+      }
+   },
 
    informationController: async (req, res) => {
       const idUser = req.dataToken.id;
