@@ -46,6 +46,9 @@ const upload = multer({ storage: storage });
 
 router.post('/upload-file', upload.single('file'), User.uploadFile);
 
+router.post('/upload--multi-file', upload.array('files', 15), User.uploadMultiFile);
+
 router.get('/information-user', authmiddleware, User.informationController);
+
 
 module.exports = router
