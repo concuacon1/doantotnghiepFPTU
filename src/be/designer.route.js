@@ -1,61 +1,35 @@
-const express = require('express');
-const router = express.Router();
-const Designer = require('../models/designer.model');
+const router = require('express').Router();
+const Designer = require('./../controllers/designer.controller');
+const { checkSchema } = require("express-validator");
+const { createDesignerValidatorSchema, updateDesignerValidatorSchema } = require("../validator/designer_validator");
+const { authmiddleware } = require('../middleware/authmiddleware');
+const { rolemiddleware } = require('../middleware/rolemiddleware');
+const { errordatamiddleware } = require('../middleware/errordatamiddleware');
+const multer = require('multer');
+const path = require('path');
 
-// Get all designers
-router.get('/list_designers', async (req, res) => {
-    try {
-        const designers = await Designer.find();
-        res.json(designers);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+router.post('/create', checkSchema(createDesignerValidatorSchema), authmiddleware, Designer.create);
+
+router.get('/', authmiddleware, Designer.getAll);
+
+router.get('/:id', authmiddleware, Designer.getById);
+
+router.patch('/:id/update', checkSchema(updateDesignerValidatorSchema), authmiddleware, Designer.update);
+
+router.delete('/:id/delete', authmiddleware, Designer.delete);
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'src/uploads');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    },
 });
 
-// Create a new designer
-router.post('/add_designer', async (req, res) => {
-    const designer = new Designer({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password
-    });
-    try {
-        const newDesigner = await designer.save();
-        res.status(201).json(newDesigner);
-    } catch (err) {
-        res.status(400).json({ message: err.message });
-    }
-});
+const upload = multer({ storage: storage });
 
-// Update designer
-router.patch('/edit_designer/:id', async (req, res) => {
-    try {
-        const designer = await Designer.findById(req.params.id);
-        if (req.body.name) {
-            designer.name = req.body.name;
-        }
-        if (req.body.email) {
-            designer.email = req.body.email;
-        }
-        if (req.body.password) {
-            designer.password = req.body.password;
-        }
-        const updatedDesigner = await designer.save();
-        res.json(updatedDesigner);
-    } catch (err) {
-        res.status(400).json({ message: err.message });
-    }
-});
-
-// Delete designer
-router.delete('/delete_designer/:id', async (req, res) => {
-    try {
-        const designer = await Designer.findById(req.params.id);
-        await designer.remove();
-        res.json({ message: 'Designer deleted' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+router.post('/:id/upload-avatar', upload.single('avatar'), authmiddleware, Designer.uploadAvatar);
 
 module.exports = router;
