@@ -1,3 +1,4 @@
+// designer.model.js
 const mongoose = require('mongoose');
 
 const designerSchema = new mongoose.Schema({
@@ -7,14 +8,16 @@ const designerSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true // Email là duy nhất
     },
     password: {
         type: String,
         required: true
+    },
+    avatar: {
+        type: String // Đường dẫn đến tệp avatar
     }
 });
 
-const Designer = mongoose.model('Designer', designerSchema);
-
-module.exports = Designer;
+module.exports = mongoose.model('Designer', designerSchema);
