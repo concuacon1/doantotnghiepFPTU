@@ -67,7 +67,6 @@ const project = {
                 images: listCategory[index].images,
                 projectIds: dataCreate._id,
             })
-            console.log(datasaveCategory)
             await datasaveCategory.save();
         }
         return res.json({
@@ -101,8 +100,27 @@ const project = {
             },
             {
                 $lookup: {
-                    from: 'categories', // The name of the collection to join
-                    localField: '_id', // Assuming projectIds is an array of ObjectId
+                    from: 'designers',
+                    localField: 'designerId',
+                    foreignField: 'designerId',
+                    as: 'dataDesigner',
+                },
+            },
+            {
+                $unwind: "$dataDesigner" // Unwind the dataDesigner array
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'dataDesigner.designerId', // Assuming designerId is in each object within the dataDesigner array
+                    foreignField: '_id',
+                    as: 'userData',
+                },
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: '_id',
                     foreignField: 'projectIds',
                     as: 'categoryData',
                 },
@@ -117,6 +135,8 @@ const project = {
             }
         })
     },
+
+ 
 }
 
 module.exports = project

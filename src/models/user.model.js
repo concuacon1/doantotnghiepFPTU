@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const { enum_role } = require("../common/enum.database")
+const {enum_role} = require("../common/enum.database")
 
 const UserSchema = new Schema({
     fullName: {
@@ -19,7 +19,8 @@ const UserSchema = new Schema({
         default: ""
     },
     address: {
-        type: String
+        type: String,
+        default: ""
     },
     dob: {
         type: Date,
@@ -42,12 +43,12 @@ const UserSchema = new Schema({
     role: {
         type: String,
         enum: enum_role,
-    },
+      },
     isActive: {
         type: Boolean,
         default: true
     },
-    isDelete: {
+    isDelete : {
         type: Boolean,
         default: true
     },
