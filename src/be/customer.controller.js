@@ -1,6 +1,6 @@
-// customer.controller.js
 const Customer = require('../models/customer.model');
 
+// Hàm để tạo một khách hàng mới
 exports.createCustomer = async (req, res) => {
     try {
         const customer = new Customer({
@@ -15,6 +15,7 @@ exports.createCustomer = async (req, res) => {
     }
 };
 
+// Hàm để lấy danh sách tất cả khách hàng
 exports.getAllCustomers = async (req, res) => {
     try {
         const customers = await Customer.find();
@@ -24,6 +25,7 @@ exports.getAllCustomers = async (req, res) => {
     }
 };
 
+// Hàm để lấy thông tin của một khách hàng dựa trên ID
 exports.getCustomerById = async (req, res) => {
     try {
         const customer = await Customer.findById(req.params.id);
@@ -36,6 +38,7 @@ exports.getCustomerById = async (req, res) => {
     }
 };
 
+// Hàm để cập nhật thông tin của một khách hàng dựa trên ID
 exports.updateCustomer = async (req, res) => {
     try {
         const customer = await Customer.findById(req.params.id);
@@ -58,6 +61,7 @@ exports.updateCustomer = async (req, res) => {
     }
 };
 
+// Hàm để xóa một khách hàng dựa trên ID
 exports.deleteCustomer = async (req, res) => {
     try {
         const customer = await Customer.findById(req.params.id);
