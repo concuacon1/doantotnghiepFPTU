@@ -1,22 +1,45 @@
-// designer.model.js
 const mongoose = require('mongoose');
 
 const designerSchema = new mongoose.Schema({
-    name: {
+    fullName: {
         type: String,
         required: true
     },
     email: {
         type: String,
         required: true,
-        unique: true // Email là duy nhất
+        unique: true
     },
     password: {
         type: String,
         required: true
     },
-    avatar: {
-        type: String // Đường dẫn đến tệp avatar
+    phoneNumber: {
+        type: String,
+        required: true
+    },
+    address: {
+        street: { type: String, required: true },
+        city: { type: String, required: true },
+        state: { type: String, required: true },
+        zip: { type: String, required: true }
+    },
+    role: {
+        type: String,
+        default: 'Designer'
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    designerCode: {
+        type: String,
+        unique: true,
+        required: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 });
 
