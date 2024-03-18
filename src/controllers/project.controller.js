@@ -29,7 +29,7 @@ const project = {
     get_project_type: async (req, res) => {
         const data = await ProjectTypeSchema.find();
         return res.json({
-            message: "",
+            message: "", 
             data: {
                 listProjectType: data,
             }
@@ -77,7 +77,7 @@ const project = {
         })
     },
     get_project_category: async (req, res) => {
-        const data = await ProjectSchema.find({ _id: { $gt: "000000000000000000000000" } })
+        const data = await ProjectSchema.find({ _id: { $gt: "000000000000000000000000" } }) 
             .sort({ _id: -1 })
             .limit(24)
             .exec();
@@ -95,7 +95,7 @@ const project = {
         const data = await ProjectSchema.aggregate([
             {
                 $match: {
-                    _id: mongoose.Types.ObjectId(id),
+                    _id:  ObjectId(id) ,
                 },
             },
             {
@@ -114,10 +114,10 @@ const project = {
                     from: 'users',
                     localField: 'dataDesigner.designerId', // Assuming designerId is in each object within the dataDesigner array
                     foreignField: '_id',
-                    as: 'userData',
+                    as: 'userData', 
                 },
             },
-            {
+             {
                 $lookup: {
                     from: 'categories',
                     localField: '_id',

@@ -46,7 +46,7 @@ const user = {
         const datasave = new UserSchema({
             ...data,
             userCode: userCode.toUpperCase(),
-            dob : new Date(dob),
+            dob: new Date(dob),
             password: hasspassword
         })
         const userCreate = await datasave.save();
@@ -84,6 +84,10 @@ const user = {
         if (!userdata) {
             return res.status(400).json({ message: "Tài khoản của bạn sai " })
         }
+
+        if(userdata.isDelete || !userdata.isActive){
+            return res.status(400).json({ message: "Tài khoản của bạn bị xóa hoặc bị chặn login " })
+        }
         const isMatch = bcrypt.compareSync(password, userdata.password)
         if (!isMatch) {
             return res.status(400).json({ message: "Mật khẩu của bạn không đúng " })
@@ -99,6 +103,11 @@ const user = {
         if (!userdata) {
             return res.status(400).json({ message: "phoneNumber của bạn sai " })
         }
+
+        if(userdata.isDelete || !userdata.isActive){
+            return res.status(400).json({ message: "Tài khoản của bạn bị xóa hoặc bị chặn login " })
+        }
+        
         const isMatch = await bcrypt.compare(password, userdata.password)
         if (!isMatch) {
             return res.status(400).json({ message: "Mật khẩu của bạn không đúng " })
@@ -180,7 +189,11 @@ const user = {
     delete_user: async (req, res) => {
         try {
             const idDelete = req.params.id;
-            await UserSchema.deleteOne({ _id: ObjectId(idDelete) })
+            await UserSchema.findOneAndUpdate({ _id: ObjectId(idDelete) }, {
+                $set: {
+                    isDelete : true
+                }
+            })
             return res.json({ message: "Xóa thành công" })
         } catch (error) {
             return res.status(500).json({ message: "Xóa error" })
@@ -372,8 +385,6 @@ const user = {
         }
 
         if ((role === "ADMIN" || role === "STAFF" || role === "CUSTOMER") && flagGetUser === "DESIGNER") {
-
-            console.log(22222222222, designfile)
             pipeline.push({
                 $match: {
                     $and: [
