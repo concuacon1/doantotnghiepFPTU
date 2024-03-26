@@ -4,11 +4,12 @@ const cors = require('cors');
 var cookies = require("cookie-parser");
 const path = require("path");
 const multer = require('multer');
-
+const { Server } = require("socket.io");
+const { corsConfig }  = require('./src/cors/serverCors')
 var app = express();
 app.use(express.json());
 app.use(cookies());
-app.use(cors());
+app.use(cors(corsConfig));
 const mongoose = require('mongoose');
 const URI = process.env.DATABASE_URL
 
@@ -31,10 +32,13 @@ const storage = multer.diskStorage({
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   },
 });
+const server = require("http").createServer(app);
+const io = new Server(server, {
+  cors: corsConfig,
+});
 
-require('./src/queue/emailWorker');
-app.use("/api", require('./src/routes/user.route'))
-app.use("/api", require('./src/routes/project.route'))
+app.use("/api", require('./src/routes/user'))
+app.use("/api", require('./src/routes/project'))
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'src')));
 
@@ -47,4 +51,4 @@ app.get('/', function (req, res) {
 });
 const port = process.env.PORT || 8000
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+server.listen(port, () => console.log(`Example app listening on port ${port}!`))

@@ -29,7 +29,7 @@ const project = {
     get_project_type: async (req, res) => {
         const data = await ProjectTypeSchema.find();
         return res.json({
-            message: "",
+            message: "", 
             data: {
                 listProjectType: data,
             }
@@ -60,16 +60,33 @@ const project = {
         const datasave = new ProjectSchema({
             ...data,
         })
-        const dataCreate = await datasave.save();
-        for (let index = 0; index < listCategory.length; index++) {
-            const datasaveCategory = new CategoriesSchema({
-                categoriesName: listCategory[index].categoriesName,
-                images: listCategory[index].images,
-                projectIds: dataCreate._id,
+        try {
+            const dataCreate = await datasave.save();
+            for (let index = 0; index < listCategory.length; index++) {
+                const datasaveCategory = new CategoriesSchema({
+                    categoriesName: listCategory[index].categoriesName,
+                    images: listCategory[index].images,
+                    projectIds: dataCreate._id,
+                })
+                await datasaveCategory.save();
+            }
+            const newProjectType = new ProjectTypeSchema({
+                nameProjectType: datasave.name
+            });
+
+            await newProjectType.save();
+            return res.json({
+                message: "Success",
+                data: {
+                    listProjectType: data,
+                }
             })
-            console.log(datasaveCategory)
-            await datasaveCategory.save();
+        } catch (error) {
+            console.log('====================================');
+            console.log("error ", error);
+            console.log('====================================');
         }
+
         return res.json({
             message: "Success",
             data: {
@@ -78,7 +95,7 @@ const project = {
         })
     },
     get_project_category: async (req, res) => {
-        const data = await ProjectSchema.find({ _id: { $gt: "000000000000000000000000" } })
+        const data = await ProjectSchema.find({ _id: { $gt: "000000000000000000000000" } }) 
             .sort({ _id: -1 })
             .limit(24)
             .exec();
@@ -96,13 +113,32 @@ const project = {
         const data = await ProjectSchema.aggregate([
             {
                 $match: {
-                    _id: mongoose.Types.ObjectId(id),
+                    _id: ObjectId(id),
                 },
             },
             {
                 $lookup: {
-                    from: 'categories', // The name of the collection to join
-                    localField: '_id', // Assuming projectIds is an array of ObjectId
+                    from: 'designers',
+                    localField: 'designerId',
+                    foreignField: 'designerId',
+                    as: 'dataDesigner',
+                },
+            },
+            {
+                $unwind: "$dataDesigner" // Unwind the dataDesigner array
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'dataDesigner.designerId', // Assuming designerId is in each object within the dataDesigner array
+                    foreignField: '_id',
+                    as: 'userData', 
+                },
+            },
+             {
+                $lookup: {
+                    from: 'categories',
+                    localField: '_id',
                     foreignField: 'projectIds',
                     as: 'categoryData',
                 },
@@ -117,6 +153,26 @@ const project = {
             }
         })
     },
+    post_get_project_type: async (req, res) => {
+        const { id_type } = req.body;
+        const data = await ProjectSchema.find({
+            _id: { $gt: "000000000000000000000000" },
+            projectIdType: id_type,
+        })
+            .sort({ _id: -1 })
+            .limit(24) 
+            .exec();
+         const projectTypeName = await ProjectTypeSchema.findById(id_type).select("nameProjectType")
+
+        return res.json({
+            message: "Success",
+            data: {
+                listProject: data,
+                nameType :projectTypeName  
+            }
+        })
+    }
+
 }
 
 module.exports = project

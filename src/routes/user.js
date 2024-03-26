@@ -50,5 +50,20 @@ router.post('/upload--multi-file', upload.array('files', 15), User.uploadMultiFi
 
 router.get('/information-user', authmiddleware, User.informationController);
 
+router.post('/update-user', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ['ADMIN'] }; 
+    next();
+}, rolemiddleware, User.updateUser);
+
+router.post('/list-user', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ['ADMIN', "STAFF", "DESIGNER", "CUSTOMER"] }
+    next();
+}, rolemiddleware, User.get_list_for_role);
+
+router.post('/update-designer', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["DESIGNER"] }
+    next();
+}, rolemiddleware, User.updateInformationDESIGNER);
+
 
 module.exports = router

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-module.exports.authmiddleware = function(req, res, next){
+module.exports.authmiddleware = function (req, res, next) {
 	const authHeader = req.header('Authorization')
 	const token = authHeader && authHeader.split(' ')[1]
 	if (!token)
@@ -8,8 +8,8 @@ module.exports.authmiddleware = function(req, res, next){
 			.json({ message: 'Access token not found' })
 
 	try {
-		const decoded =  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
-		req.dataToken  = decoded
+		const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+		req.dataToken = decoded
 		next()
 	} catch (error) {
 		return res.status(403).json({ message: 'Invalid token' })
