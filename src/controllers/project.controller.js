@@ -6,6 +6,11 @@ const UserSchema = require('../models/user.model');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
+const delete_project_type = async (projectIdType) => {
+    const data = await ProjectTypeSchema.deleteOne({ _id: projectIdType });
+    return data;
+}
+
 const project = {
     create_project_type: async (req, res) => {
         const { nameProjectType } = req.body
@@ -29,7 +34,7 @@ const project = {
     get_project_type: async (req, res) => {
         const data = await ProjectTypeSchema.find();
         return res.json({
-            message: "", 
+            message: "",
             data: {
                 listProjectType: data,
             }
@@ -70,11 +75,6 @@ const project = {
                 })
                 await datasaveCategory.save();
             }
-            const newProjectType = new ProjectTypeSchema({
-                nameProjectType: datasave.name
-            });
-
-            await newProjectType.save();
             return res.json({
                 message: "Success",
                 data: {
@@ -95,7 +95,7 @@ const project = {
         })
     },
     get_project_category: async (req, res) => {
-        const data = await ProjectSchema.find({ _id: { $gt: "000000000000000000000000" } }) 
+        const data = await ProjectSchema.find({ _id: { $gt: "000000000000000000000000" } })
             .sort({ _id: -1 })
             .limit(24)
             .exec();
@@ -132,10 +132,10 @@ const project = {
                     from: 'users',
                     localField: 'dataDesigner.designerId', // Assuming designerId is in each object within the dataDesigner array
                     foreignField: '_id',
-                    as: 'userData', 
+                    as: 'userData',
                 },
             },
-             {
+            {
                 $lookup: {
                     from: 'categories',
                     localField: '_id',
@@ -160,15 +160,15 @@ const project = {
             projectIdType: id_type,
         })
             .sort({ _id: -1 })
-            .limit(24) 
+            .limit(24)
             .exec();
-         const projectTypeName = await ProjectTypeSchema.findById(id_type).select("nameProjectType")
+        const projectTypeName = await ProjectTypeSchema.findById(id_type).select("nameProjectType")
 
         return res.json({
             message: "Success",
             data: {
                 listProject: data,
-                nameType :projectTypeName  
+                nameType: projectTypeName
             }
         })
     }
