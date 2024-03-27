@@ -6,11 +6,6 @@ const UserSchema = require('../models/user.model');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
-const delete_project_type = async (projectIdType) => {
-    const data = await ProjectTypeSchema.deleteOne({ _id: projectIdType });
-    return data;
-}
-
 const project = {
     create_project_type: async (req, res) => {
         const { nameProjectType } = req.body
@@ -65,28 +60,15 @@ const project = {
         const datasave = new ProjectSchema({
             ...data,
         })
-        try {
-            const dataCreate = await datasave.save();
-            for (let index = 0; index < listCategory.length; index++) {
-                const datasaveCategory = new CategoriesSchema({
-                    categoriesName: listCategory[index].categoriesName,
-                    images: listCategory[index].images,
-                    projectIds: dataCreate._id,
-                })
-                await datasaveCategory.save();
-            }
-            return res.json({
-                message: "Success",
-                data: {
-                    listProjectType: data,
-                }
+        const dataCreate = await datasave.save();
+        for (let index = 0; index < listCategory.length; index++) {
+            const datasaveCategory = new CategoriesSchema({
+                categoriesName: listCategory[index].categoriesName,
+                images: listCategory[index].images,
+                projectIds: dataCreate._id,
             })
-        } catch (error) {
-            console.log('====================================');
-            console.log("error ", error);
-            console.log('====================================');
+            await datasaveCategory.save();
         }
-
         return res.json({
             message: "Success",
             data: {
@@ -113,7 +95,7 @@ const project = {
         const data = await ProjectSchema.aggregate([
             {
                 $match: {
-                    _id: ObjectId(id),
+                    _id: mongoose.Types.ObjectId(id),
                 },
             },
             {
@@ -153,26 +135,8 @@ const project = {
             }
         })
     },
-    post_get_project_type: async (req, res) => {
-        const { id_type } = req.body;
-        const data = await ProjectSchema.find({
-            _id: { $gt: "000000000000000000000000" },
-            projectIdType: id_type,
-        })
-            .sort({ _id: -1 })
-            .limit(24)
-            .exec();
-        const projectTypeName = await ProjectTypeSchema.findById(id_type).select("nameProjectType")
 
-        return res.json({
-            message: "Success",
-            data: {
-                listProject: data,
-                nameType: projectTypeName
-            }
-        })
-    }
-
+ 
 }
 
 module.exports = project

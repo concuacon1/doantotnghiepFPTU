@@ -1,12 +1,17 @@
 const Designer = require('../models/designer.model');
 
-// Controller function to create a new designer
-exports.create = async (req, res) => {
+// Hàm để tạo một người thiết kế mới
+exports.createDesigner = async (req, res) => {
     try {
         const designer = new Designer({
-            name: req.body.name,
+            fullName: req.body.fullName,
             email: req.body.email,
-            password: req.body.password
+            password: req.body.password,
+            phoneNumber: req.body.phoneNumber,
+            address: req.body.address,
+            role: req.body.role,
+            designerCode: req.body.designerCode,
+            isActive: req.body.isActive
         });
         const newDesigner = await designer.save();
         res.status(201).json(newDesigner);
@@ -15,8 +20,8 @@ exports.create = async (req, res) => {
     }
 };
 
-// Controller function to get all designers
-exports.getAll = async (req, res) => {
+// Hàm để lấy danh sách tất cả người thiết kế
+exports.getAllDesigners = async (req, res) => {
     try {
         const designers = await Designer.find();
         res.json(designers);
@@ -25,36 +30,27 @@ exports.getAll = async (req, res) => {
     }
 };
 
-// Controller function to get a designer by ID
-exports.getById = async (req, res) => {
-    try {
-        const designer = await Designer.findById(req.params.id);
-        if (designer) {
-            res.json(designer);
-        } else {
-            res.status(404).json({ message: 'Designer not found' });
-        }
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-};
-
-// Controller function to update a designer
-exports.update = async (req, res) => {
+// Hàm để lấy thông tin của một người thiết kế dựa trên ID
+exports.getDesignerById = async (req, res) => {
     try {
         const designer = await Designer.findById(req.params.id);
         if (!designer) {
             return res.status(404).json({ message: 'Designer not found' });
         }
-        if (req.body.name) {
-            designer.name = req.body.name;
+        res.json(designer);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// Hàm để cập nhật thông tin của một người thiết kế dựa trên ID
+exports.updateDesigner = async (req, res) => {
+    try {
+        const designer = await Designer.findById(req.params.id);
+        if (!designer) {
+            return res.status(404).json({ message: 'Designer not found' });
         }
-        if (req.body.email) {
-            designer.email = req.body.email;
-        }
-        if (req.body.password) {
-            designer.password = req.body.password;
-        }
+        designer.set(req.body);
         const updatedDesigner = await designer.save();
         res.json(updatedDesigner);
     } catch (err) {
@@ -62,8 +58,8 @@ exports.update = async (req, res) => {
     }
 };
 
-// Controller function to delete a designer
-exports.delete = async (req, res) => {
+// Hàm để xóa một người thiết kế dựa trên ID
+exports.deleteDesigner = async (req, res) => {
     try {
         const designer = await Designer.findById(req.params.id);
         if (!designer) {
@@ -71,15 +67,6 @@ exports.delete = async (req, res) => {
         }
         await designer.remove();
         res.json({ message: 'Designer deleted' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-};
-
-// Controller function to upload an avatar for a designer
-exports.uploadAvatar = async (req, res) => {
-    try {
-        res.json({ message: 'Avatar uploaded successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

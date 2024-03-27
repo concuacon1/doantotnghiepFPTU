@@ -59,10 +59,10 @@ const user = {
             })
             await datasaveCustomer.save();
         }
-
+        let datasaveDesigner = '';
         if (role == "DESIGNER") {
             const { cv } = req.body
-            const datasaveDesigner = new DesignerSchema({
+            datasaveDesigner = new DesignerSchema({
                 designerId: userCreate._id,
                 cv: cv,
             })
@@ -71,7 +71,7 @@ const user = {
         const accesstoken = createAccessToken({ id: userCreate._id, role: userCreate.role })
         return res.json({
             message: "Tạo tài khoản thành công", data: {
-                informationuser: { email, role },
+                informationuser: { email, role, designerId: datasaveDesigner !== ' ' ? ' ' : datasaveDesigner._id, },
                 cookie: accesstoken
             }
         })
@@ -85,7 +85,7 @@ const user = {
             return res.status(400).json({ message: "Tài khoản của bạn sai " })
         }
 
-        if(userdata.isDelete || !userdata.isActive){
+        if (userdata.isDelete || !userdata.isActive) {
             return res.status(400).json({ message: "Tài khoản của bạn bị xóa hoặc bị chặn login " })
         }
         const isMatch = bcrypt.compareSync(password, userdata.password)
@@ -93,7 +93,15 @@ const user = {
             return res.status(400).json({ message: "Mật khẩu của bạn không đúng " })
         }
         const accesstoken = createAccessToken({ id: userdata._id, role: userdata.role })
-        return res.status(200).json({ message: "", data: { informationuser: { email: email, role: userdata.role }, cookie: accesstoken } });
+        const designerInfo = await DesignerSchema.find({ designerId: userdata._id });
+        console.log("designerInfo == ", designerInfo);
+        return res.status(200).json({
+            message: "",
+            data: {
+                informationuser: { email: email, role: userdata.role, designerId: designerInfo.length > 0 ? designerInfo[0]._id : '' },
+                cookie: accesstoken
+            }
+        });
 
     },
     login_phone: async (req, res) => {
@@ -104,16 +112,24 @@ const user = {
             return res.status(400).json({ message: "phoneNumber của bạn sai " })
         }
 
-        if(userdata.isDelete || !userdata.isActive){
+        if (userdata.isDelete || !userdata.isActive) {
             return res.status(400).json({ message: "Tài khoản của bạn bị xóa hoặc bị chặn login " })
         }
-        
+
         const isMatch = await bcrypt.compare(password, userdata.password)
         if (!isMatch) {
             return res.status(400).json({ message: "Mật khẩu của bạn không đúng " })
         }
         const accesstoken = createAccessToken({ id: userdata._id, role: userdata.role })
-        return res.status(200).json({ message: "", data: { informationuser: { email: userdata.email, role: userdata.role }, cookie: accesstoken } })
+        const designerInfo = await DesignerSchema.find({ designerId: userdata._id });
+
+        return res.status(200).json({
+            message: "",
+            data: {
+                informationuser: { email: userdata.email, role: userdata.role, designerId: designerInfo.length > 0 ? designerInfo[0]._id : '' },
+                cookie: accesstoken
+            }
+        })
     },
     get_list_user: async (req, res) => {
         const idUser = req.dataToken.id;
@@ -191,7 +207,7 @@ const user = {
             const idDelete = req.params.id;
             await UserSchema.findOneAndUpdate({ _id: ObjectId(idDelete) }, {
                 $set: {
-                    isDelete : true
+                    isDelete: true
                 }
             })
             return res.json({ message: "Xóa thành công" })
@@ -307,7 +323,6 @@ const user = {
         const { role } = req.dataToken;
         let roleSeach = '';
 
-
         if ((role === "ADMIN" || role === "DESIGNER" || role === "STAFF") && flagGetUser == "CUSTOMER") {
             roleSeach = "CUSTOMER"
         }
@@ -317,7 +332,7 @@ const user = {
             roleSeach = "STAFF"
         }
 
-        if ((role === "ADMIN" || role === "CUSTOMER" || role === "STAFF") && flagGetUser == "DESIGNER") {
+        if ((role === "ADMIN" || role === "CUSTOMER" || role === "STAFF" || role === "DESIGNER") && flagGetUser == "DESIGNER") {
             roleSeach = "DESIGNER"
         }
 
@@ -341,7 +356,7 @@ const user = {
             }
         ]
 
-        if ((role === "ADMIN" || role === "STAFF") && flagGetUser === "DESIGNER") {
+        if ((role === "ADMIN" || role === "STAFF" || role === "DESIGNER") && flagGetUser === "DESIGNER") {
             pipeline.push({
                 $lookup: {
                     from: 'designers',
@@ -399,8 +414,6 @@ const user = {
                     ]
                 }
             });
-
-
         }
 
         if ((role === "ADMIN" || role === "STAFF") && (flagGetUser === "STAFF" || flagGetUser == "CUSTOMER")) {
@@ -413,7 +426,6 @@ const user = {
                 }
             });
         }
-
         const listUser = await UserSchema.aggregate(pipeline);
         return res.json({ message: "", data: listUser })
     },
@@ -427,6 +439,26 @@ const user = {
             { new: true } // Return the updated document
         );
         res.json({ success: true, message: 'Update success' });
+    },
+    getInformationDESIGNER: async (req, res) => {
+        const { id } = req.params;
+        const data = await DesignerSchema.aggregate([
+            {
+                $match: {
+                    _id: ObjectId(id),
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'designerId',
+                    foreignField: '_id',
+                    as: 'dataDesigner'
+                }
+            }
+        ]);
+
+        res.json({ success: true, message: data });
     },
 }
 
