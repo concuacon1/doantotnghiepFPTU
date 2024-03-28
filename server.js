@@ -5,13 +5,23 @@ var cookies = require("cookie-parser");
 const path = require("path");
 const multer = require('multer');
 const { Server } = require("socket.io");
-const { corsConfig }  = require('./src/cors/serverCors')
+const { corsConfig } = require('./src/cors/serverCors')
 var app = express();
 app.use(express.json());
 app.use(cookies());
 app.use(cors(corsConfig));
 const mongoose = require('mongoose');
 const URI = process.env.DATABASE_URL
+const blockedUserAgents = ['Postman', 'postman'];
+
+app.use((req, res, next) => {
+  const userAgent = req.get('user-agent');
+  if (blockedUserAgents.some(agent => userAgent.includes(agent))) {
+    res.status(403).send('Access forbidden Post man');
+  } else { 
+    next();
+  }
+});
 
 mongoose.connect(URI, {
   useCreateIndex: true,
@@ -39,6 +49,7 @@ const io = new Server(server, {
 
 app.use("/api", require('./src/routes/user'))
 app.use("/api", require('./src/routes/project'))
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'src')));
 

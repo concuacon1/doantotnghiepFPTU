@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const User = require('./../controllers/user.controller')
+const Schedule = require('./../controllers/schedule.controller')
 const { checkSchema } = require("express-validator")
 const { createUserValidatorSchema, validatorPasswordChange, validatorPasswordChangeOTP } = require("../validator/user_validator")
 const { authmiddleware } = require('../middleware/authmiddleware')
@@ -51,7 +52,7 @@ router.post('/upload--multi-file', upload.array('files', 15), User.uploadMultiFi
 router.get('/information-user', authmiddleware, User.informationController);
 
 router.post('/update-user', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ['ADMIN'] }; 
+    req.dataRole = { list_role: ['ADMIN'] };
     next();
 }, rolemiddleware, User.updateUser);
 
@@ -65,5 +66,30 @@ router.post('/update-designer', authmiddleware, (req, res, next) => {
     next();
 }, rolemiddleware, User.updateInformationDESIGNER);
 
+router.post('/update-designer/:id', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER", "GUEST"] }
+    next();
+}, rolemiddleware, User.getInformationDESIGNER);
+
+router.get('/create-schedule', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["DESIGNER"] }
+    next();
+}, rolemiddleware, Schedule.createSchedule);
+
+
+router.get('/schedule/:designerId/busy-dates', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER"] }
+    next();
+}, rolemiddleware, Schedule.getDesignerCalendar);
+
+router.post('/schedule/:designerId/book', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER"] }
+    next();
+}, rolemiddleware, Schedule.book_for_customer);
+
+router.post('/schedule/confirm', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "DESIGNER"] }
+    next();
+}, rolemiddleware, Schedule.register_schedule_on);
 
 module.exports = router

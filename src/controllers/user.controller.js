@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const UserSchema = require('../models/user.model');
 const CustomerSchema = require('../models/customer.model')
 const DesignerSchema = require("../models/designer.model")
+const ScheduleSchema = require("../models/schedule.model")
 const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
@@ -59,7 +60,7 @@ const user = {
             })
             await datasaveCustomer.save();
         }
-        let datasaveDesigner = '';
+        let datasaveDesigner;
         if (role == "DESIGNER") {
             const { cv } = req.body
             datasaveDesigner = new DesignerSchema({
@@ -67,11 +68,17 @@ const user = {
                 cv: cv,
             })
             await datasaveDesigner.save();
+            if (datasaveDesigner) {
+                const datasaveSchedule = new ScheduleSchema({
+                    designerId: datasaveDesigner._id
+                })
+                await datasaveSchedule.save();
+            }
         }
         const accesstoken = createAccessToken({ id: userCreate._id, role: userCreate.role })
         return res.json({
             message: "Tạo tài khoản thành công", data: {
-                informationuser: { email, role, designerId: datasaveDesigner !== ' ' ? ' ' : datasaveDesigner._id, },
+                informationuser: { email, role, designerId: datasaveDesigner ? datasaveDesigner._id : '' },
                 cookie: accesstoken
             }
         })
@@ -140,6 +147,7 @@ const user = {
             {
                 $match: {
                     _id: { $ne: ObjectId(idUser) },
+                    isDelete: false,
                     role: { $ne: "ADMIN" }
                 }
             },
