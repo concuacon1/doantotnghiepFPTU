@@ -440,7 +440,12 @@ const user = {
 
     updateInformationDESIGNER: async (req, res) => {
         const { id } = req.dataToken;
-        const { imageDesigner, listImageProject, skill, designfile, experience } = req.body;
+        const { imageDesigner, listImageProject, skill, designfile, experience, description } = req.body;
+        await UserSchema.findOneAndUpdate(
+            { _id: id },
+            { $set: { description } },
+            { new: true }
+        )
         await DesignerSchema.findOneAndUpdate(
             { designerId: id }, // Assuming `designerId` is the field that matches the id
             { $set: { imageDesigner, listImageProject, skill, designfile, experience } },
