@@ -71,11 +71,35 @@ router.post('/update-designer/:id', authmiddleware, (req, res, next) => {
     next();
 }, rolemiddleware, User.getInformationDESIGNER);
 
+router.get('/list-all-schedule', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "STAFF"] }
+    next();
+}, rolemiddleware, Schedule.getAllListSchedule);
+
+router.post('/list-search-all-schedule', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "STAFF"] }
+    next();
+}, rolemiddleware, Schedule.searchListSchedule);
+
 router.get('/create-schedule', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ["DESIGNER"] }
     next();
 }, rolemiddleware, Schedule.createSchedule);
 
+router.get('/schedule/designer-info', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "DESIGNER"] }
+    next();
+}, rolemiddleware, Schedule.getScheduleInfoByDesigner)
+
+router.get('/schedule/user-info', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "CUSTOMER"] }
+    next();
+}, rolemiddleware, Schedule.getScheduleInfoByCustomer)
+
+router.get('/schedule/user-list-schedule', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["CUSTOMER"] }
+    next();
+}, rolemiddleware, Schedule.getListScheduleByUser)
 
 router.get('/schedule/:designerId/busy-dates', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER"] }

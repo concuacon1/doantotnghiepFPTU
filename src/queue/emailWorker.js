@@ -17,24 +17,24 @@ const transporter = nodemailer.createTransport({
 
 const sendEmail = async (propsData) => {
     const { emailTo, OTP } = propsData
-  
+
     try {
-      await transporter.sendMail(  {   
-        from: `No Reply ${process.env.EMAIL_USER}`,
-        to: emailTo,
-        subject: 'Thông báo mã OTP thay đổi mật khẩu ',
-        html: `
+        await transporter.sendMail({
+            from: `No Reply ${process.env.EMAIL_USER}`,
+            to: emailTo,
+            subject: 'Thông báo mã OTP thay đổi mật khẩu ',
+            html: `
         <div style="padding: 10px; background-color: #003375">
             <div style="padding: 10px; background-color: white;">
                 <h2 style="color: #0085ff">Mã OTP của bản là : ${OTP} </h2>
             </div>
         </div>
     `
-    });
+        });
     } catch (error) {
-      console.error('Error sending email:', error.message);
-      throw error;
+        console.error('Error sending email:', error.message);
+        throw error;
     }
-  };
-  
-  module.exports = sendEmail;
+};
+
+module.exports = sendEmail;

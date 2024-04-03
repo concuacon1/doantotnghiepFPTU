@@ -32,7 +32,7 @@ const ScheduleSchema = new Schema({
         default: "NULL"
     },
     timeWork: {
-        type: Date,
+        type: String,
         default: ""
     },
     phoneNumber: {
@@ -41,6 +41,9 @@ const ScheduleSchema = new Schema({
     email: {
         type: String,
     },
+    place: {
+        type: String,
+    }
 }, { timestamps: true })
 
 module.exports = mongoose.model("schedule", ScheduleSchema)

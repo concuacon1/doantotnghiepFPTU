@@ -171,8 +171,22 @@ const project = {
                 nameType: projectTypeName
             }
         })
-    }
+    },
+    del_project: async (req, res) => {
+        const { id } = req.params;
+        try {
+            const deletedProject = await ProjectSchema.findOneAndDelete({ _id: id });
 
+            if (!deletedProject) {
+                return res.status(404).json({ message: 'Project not found' });
+            }
+
+            return res.status(200).json({ message: 'Project deleted successfully', deletedProject });
+        } catch (error) {
+            console.error('Error deleting project:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
 }
 
 module.exports = project
