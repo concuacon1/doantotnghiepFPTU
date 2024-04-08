@@ -92,7 +92,7 @@ router.get('/schedule/designer-info', authmiddleware, (req, res, next) => {
 }, rolemiddleware, Schedule.getScheduleInfoByDesigner)
 
 router.get('/schedule/user-info', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "CUSTOMER"] }
+    req.dataRole = { list_role: ["ADMIN", "CUSTOMER", "STAFF"] }
     next();
 }, rolemiddleware, Schedule.getScheduleInfoByCustomer)
 
