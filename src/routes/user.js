@@ -96,6 +96,11 @@ router.get('/schedule/user-info', authmiddleware, (req, res, next) => {
     next();
 }, rolemiddleware, Schedule.getScheduleInfoByCustomer)
 
+router.get('/schedule/:designerId/graySchedule', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER"] }
+    next();
+}, rolemiddleware, Schedule.getGraySchedule)
+
 router.get('/schedule/user-list-schedule', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ["CUSTOMER"] }
     next();
@@ -105,6 +110,11 @@ router.get('/schedule/:designerId/busy-dates', authmiddleware, (req, res, next) 
     req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER"] }
     next();
 }, rolemiddleware, Schedule.getDesignerCalendar);
+
+router.get('/schedule/:scheduleId', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER"] }
+    next();
+}, rolemiddleware, Schedule.getScheduleById);
 
 router.post('/schedule/:designerId/book', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER"] }

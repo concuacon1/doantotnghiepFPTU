@@ -13,7 +13,12 @@ const schedule = {
             const workOnDate = await ScheduleSchema.find({ designerId, workOn: true });
             const workOnDates = workOnDate && workOnDate.map(schedule => schedule.timeWork);
 
-            const busySchedules = await ScheduleSchema.find({ designerId, workOn: false });
+            const busySchedules = await ScheduleSchema.find({
+                designerId,
+                workOn: false,
+                $nor: [{ status: 'REJECT' }, { status: null }]
+            });
+
             if (busySchedules.length === 0) {
                 return res.status(200).json({
                     busyDates: [],
@@ -22,12 +27,21 @@ const schedule = {
                     designerId
                 });
             }
+
             const busyDates = busySchedules.map(schedule => schedule.timeWork);
+
+            const pendingSchedule = await ScheduleSchema.find({
+                designerId,
+                status: 'PENDDING'
+            });
+            const pendingDates = pendingSchedule.length > 0 ? pendingSchedule.map(schedule => schedule.timeWork) : [];
+
             res.status(200).json({
                 busyDates,
                 scheduleId: '',
                 workOnDates,
-                designerId
+                designerId,
+                pendingDates
             });
         } catch (error) {
             console.error(error);
@@ -45,18 +59,29 @@ const schedule = {
             });
             const workOnDates = workOnDate && workOnDate.map(schedule => schedule.timeWork);
 
-            const busySchedules = await ScheduleSchema.find({ designerId, status: { $ne: "YES" } });
+            const busySchedules = await ScheduleSchema.find({
+                designerId,
+                $nor: [{ status: 'REJECT' }, { status: null }]
+            });
 
             const busyDates = busySchedules.length > 0 ? busySchedules.map(schedule => schedule.timeWork) : [];
+
+            const pendingSchedule = await ScheduleSchema.find({
+                designerId,
+                status: 'PENDDING'
+            });
+            const pendingDates = pendingSchedule.length > 0 ? pendingSchedule.map(schedule => schedule.timeWork) : [];
+
             const existingSchedule = await ScheduleSchema.findOneAndUpdate(
-                { designerId, customerId: idUser },
+                { designerId, customerId: idUser, timeWork: { $ne: null } },
                 { $setOnInsert: { designerId, customerId: idUser, timeWork: null, workOn: false } },
                 { upsert: true, new: true }
             );
             const old = await ScheduleSchema.find({
                 designerId,
                 customerId: idUser,
-                isSelectBook: true
+                isSelectBook: true,
+                status: { $ne: 'REJECT' }
             });
 
             return res.status(200).json({
@@ -64,7 +89,9 @@ const schedule = {
                 scheduleId: existingSchedule._id,
                 workOnDates,
                 designerId,
-                isSelectBook: old.length > 0
+                isSelectBook: old.length > 0,
+                isSelectBefore: old.length > 0,
+                pendingDates
             });
         } catch (error) {
             console.error(error);
@@ -91,11 +118,14 @@ const schedule = {
     },
     book_for_customer: async (req, res) => {
         const idUser = req.dataToken.id;
-        const { timeSelect, id_schedule, description_book, timeWork, phoneNumber, email, place } = req.body;
-        const existBooked = await ScheduleSchema.find({ customerId: idUser });
+        const { timeSelect, id_schedule, description_book, timeWork, phoneNumber, email, place, role } = req.body;
 
-        if (existBooked.length > 1) {
-            return res.status(400).json({ message: "Bạn đã đặt lịch Designer khác rồi" });
+        if (role !== 'ADMIN' && role !== 'STAFF') {
+            const existBooked = await ScheduleSchema.find({ customerId: idUser, status: { $ne: 'REJECT' }, timeWork: { $ne: null } });
+
+            if (existBooked.length > 0) {
+                return res.status(400).json({ message: "Bạn đã đặt lịch Designer khác rồi" });
+            }
         }
 
         const currentTime = new Date();
@@ -105,10 +135,16 @@ const schedule = {
             return res.status(400).json({ message: "Thời gian đặt lịch phải lớn hơn thời gian hiện tại" });
         }
 
-        await ScheduleSchema.findOneAndUpdate({ _id: ObjectId(id_schedule) }, {
-            $set: {
+        const designerScheduleExist = await ScheduleSchema.find({ designerId: id_schedule, timeWork: timeWork, status: { $ne: 'REJECT' } });
+        if (designerScheduleExist.length > 1) {
+            return res.status(400).json({ message: "Designer này đã có lịch hẹn rồi" });
+        }
+
+        if (role === 'ADMIN' || role === 'STAFF') {
+            const newSche = new ScheduleSchema({
                 timeSelect: timeSelect,
                 customerId: idUser,
+                designerId: id_schedule,
                 status: "PENDDING",
                 description_book: description_book,
                 timeWork: proposedTime.toISOString().slice(0, 10),
@@ -116,8 +152,23 @@ const schedule = {
                 email,
                 isSelectBook: true,
                 place
-            },
-        }, { new: true });
+            });
+            await newSche.save();
+        } else {
+            await ScheduleSchema.findOneAndUpdate({ _id: ObjectId(id_schedule) }, {
+                $set: {
+                    timeSelect: timeSelect,
+                    customerId: idUser,
+                    status: "PENDDING",
+                    description_book: description_book,
+                    timeWork: proposedTime.toISOString().slice(0, 10),
+                    phoneNumber,
+                    email,
+                    isSelectBook: true,
+                    place
+                },
+            }, { new: true });
+        }
 
         return res.status(200).json({ message: "", data: "Đặt lịch thành công" });
     },
@@ -164,6 +215,17 @@ const schedule = {
             customerId: idUser,
             timeWork: timeWork,
             workOn: true
+        });
+        return res.json({ message: "Lấy thông tin đặt lịch thành công", data: dataRes })
+    },
+
+    getGraySchedule: async (req, res) => {
+        const designerId = req.params.designerId;
+        const { timeWork } = req.query;
+        let dataRes = await ScheduleSchema.find({
+            timeWork: timeWork,
+            workOn: false,
+            designerId: designerId
         });
         return res.json({ message: "Lấy thông tin đặt lịch thành công", data: dataRes })
     },
@@ -306,10 +368,22 @@ const schedule = {
             await ScheduleSchema.findOneAndUpdate({ _id: ObjectId(designerId) }, {
                 $set: {
                     timeSelect,
-                    status
+                    status,
+                    workOn: status === "APPROVED" ? true : false
                 },
             }, { new: true });
             return res.json({ message: "Cập nhật thông tin thành công" });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Server Error' });
+        }
+    },
+
+    getScheduleById: async (req, res) => {
+        try {
+            const { scheduleId } = req.params;
+            const schedule = await ScheduleSchema.find({ _id: ObjectId(scheduleId) });
+            return res.json({ message: "Get thông tin thành công", data: schedule[0].timeWork });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Server Error' });
