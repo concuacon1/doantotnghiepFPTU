@@ -107,7 +107,6 @@ const contract = {
         return res.json({
             message: "Email thông báo cần tư vấn thành công",
             data: {
-              
             }
         })
     },
