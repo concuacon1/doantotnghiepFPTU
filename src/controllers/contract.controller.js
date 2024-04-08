@@ -110,7 +110,20 @@ const contract = {
               
             }
         })
-    }
+    },
+    get_contract_detail: async (req, res) => {
+        const dataFind = await ContractSchema.find({ _id: req.params.id });
+        if (!dataFind) {
+            return res.status(400).json({ message: "Không tồn tại hợp đồng" });
+        }
+        return res.json({
+            message: "get contract success",
+            data: {
+                contract: dataFind
+            }
+        })
+    },
+    
 
 }
 
