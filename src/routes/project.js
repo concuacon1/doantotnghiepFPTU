@@ -31,17 +31,15 @@ router.post('/check_design', authmiddleware, (req, res, next) => {
 }, rolemiddleware, Project.check_design);
 
 router.get('/get_project', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER"] };
     next();
-}, rolemiddleware, Project.get_project_category);
+}, Project.get_project_category);
 
 
 router.post('/get_project-for-type', Project.post_get_project_type);
 
 router.get('/get_project/:id', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER"] };
     next();
-}, rolemiddleware, Project.get_project_category_id);
+}, Project.get_project_category_id);
 
 router.delete('/del_project/:id', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF"] };
