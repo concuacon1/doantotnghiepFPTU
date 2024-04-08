@@ -92,20 +92,34 @@ const schedule = {
     book_for_customer: async (req, res) => {
         const idUser = req.dataToken.id;
         const { timeSelect, id_schedule, description_book, timeWork, phoneNumber, email, place } = req.body;
+        const existBooked = await ScheduleSchema.find({ customerId: idUser });
+
+        if (existBooked.length > 1) {
+            return res.status(400).json({ message: "Bạn đã đặt lịch Designer khác rồi" });
+        }
+
+        const currentTime = new Date();
+        const proposedTime = new Date(timeWork);
+
+        if (proposedTime < currentTime) {
+            return res.status(400).json({ message: "Thời gian đặt lịch phải lớn hơn thời gian hiện tại" });
+        }
+
         await ScheduleSchema.findOneAndUpdate({ _id: ObjectId(id_schedule) }, {
             $set: {
                 timeSelect: timeSelect,
                 customerId: idUser,
                 status: "PENDDING",
                 description_book: description_book,
-                timeWork: new Date(timeWork).toISOString().slice(0, 10),
+                timeWork: proposedTime.toISOString().slice(0, 10),
                 phoneNumber,
                 email,
                 isSelectBook: true,
                 place
             },
-        }, { new: true })
-        return res.json({ message: "", data: "Đặt lịch thành công" })
+        }, { new: true });
+
+        return res.status(200).json({ message: "", data: "Đặt lịch thành công" });
     },
     getScheduleInfoByDesigner: async (req, res) => {
         try {
@@ -284,6 +298,23 @@ const schedule = {
             return res.status(500).json({ message: 'Server Error' });
         }
     },
+
+    updateSchedule: async (req, res) => {
+        try {
+            const { designerId } = req.params;
+            const { status, timeSelect } = req.body;
+            await ScheduleSchema.findOneAndUpdate({ _id: ObjectId(designerId) }, {
+                $set: {
+                    timeSelect,
+                    status
+                },
+            }, { new: true });
+            return res.json({ message: "Cập nhật thông tin thành công" });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Server Error' });
+        }
+    }
 }
 
 module.exports = schedule

@@ -116,4 +116,9 @@ router.post('/schedule/confirm', authmiddleware, (req, res, next) => {
     next();
 }, rolemiddleware, Schedule.register_schedule_on);
 
+router.patch('/schedule/:designerId/update', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "STAFF"] }
+    next();
+}, rolemiddleware, Schedule.updateSchedule);
+
 module.exports = router
