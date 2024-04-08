@@ -463,6 +463,11 @@ const user = {
 
         res.json({ success: true, message: 'Update success' });
     },
+    getDesignerInfo: async (req, res) => {
+        const { designerId } = req.params;
+        const userInfo = await UserSchema.find({ _id: designerId });
+        res.json({ success: true, message: 'Get user info successfully', userInfo: userInfo[0] });
+    },
     getInformationDESIGNER: async (req, res) => {
         const { id } = req.params;
         const idUser = req.dataToken.id;

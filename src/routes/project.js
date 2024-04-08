@@ -4,11 +4,9 @@ const { authmiddleware } = require('../middleware/authmiddleware')
 const { rolemiddleware } = require('../middleware/rolemiddleware');
 const { errordatamiddleware } = require('../middleware/errordatamiddleware');
 
-
-router.get('/get_project_type', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER", "GUEST"] };
+router.get('/get_project_type', (req, res, next) => {
     next();
-}, rolemiddleware, Project.get_project_type);
+}, Project.get_project_type);
 
 
 router.post('/post_project_type', authmiddleware, (req, res, next) => {

@@ -71,6 +71,11 @@ router.post('/update-designer/:id', authmiddleware, (req, res, next) => {
     next();
 }, rolemiddleware, User.getInformationDESIGNER);
 
+router.get('/cv/:designerId', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "STAFF"] }
+    next();
+}, rolemiddleware, User.getDesignerInfo);
+
 router.get('/list-all-schedule', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ["ADMIN", "STAFF"] }
     next();
