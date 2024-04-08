@@ -2,15 +2,15 @@
 
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const { bussiness_arr } = require("../common/enum.database");
+const { bussiness_arr }  =require("../common/enum.database");
 
 const CustomerSchema = new Schema({
-    customerId: { type: Schema.Types.ObjectId, ref: 'users', default: null },
+    customerId:  { type: Schema.Types.ObjectId , ref: 'users', default : null},
     businessName: {
         type: String,
-        default: ""
+        default : ""
     },
-    customerType: {
+    customerType : {
         type: String,
         enum: bussiness_arr,
     }

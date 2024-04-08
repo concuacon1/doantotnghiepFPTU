@@ -49,7 +49,7 @@ const io = new Server(server, {
 
 app.use("/api", require('./src/routes/user'))
 app.use("/api", require('./src/routes/project'))
-
+app.use("/api", require('./src/routes/contract'))
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'src')));
 

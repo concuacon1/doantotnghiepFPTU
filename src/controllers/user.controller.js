@@ -364,7 +364,7 @@ const user = {
             }
         ]
 
-        if ((role === "ADMIN" || role === "STAFF" || role === "DESIGNER") && flagGetUser === "DESIGNER") {
+        if ((role === "ADMIN" || role === "STAFF" || role === "DESIGNER" || role === "CUSTOMER") && flagGetUser === "DESIGNER") {
             pipeline.push({
                 $lookup: {
                     from: 'designers',
@@ -434,6 +434,9 @@ const user = {
                 }
             });
         }
+        console.log('====================================');
+        console.log(pipeline);
+        console.log('====================================');
         const listUser = await UserSchema.aggregate(pipeline);
         return res.json({ message: "", data: listUser })
     },
