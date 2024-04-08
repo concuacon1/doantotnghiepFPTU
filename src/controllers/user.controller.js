@@ -449,15 +449,25 @@ const user = {
             { $set: { description } },
             { new: true }
         )
+        let updateObject = { skill, designfile, experience };
+
+        if (listImageProject.length > 0) updateObject.listImageProject = listImageProject;
+        if (imageDesigner) updateObject.imageDesigner = imageDesigner;
+
         await DesignerSchema.findOneAndUpdate(
-            { designerId: id }, // Assuming `designerId` is the field that matches the id
-            { $set: { imageDesigner, listImageProject, skill, designfile, experience } },
-            { new: true } // Return the updated document
+            { designerId: id },
+            { $set: updateObject },
+            { new: true }
         );
+
+
         res.json({ success: true, message: 'Update success' });
     },
     getInformationDESIGNER: async (req, res) => {
         const { id } = req.params;
+        const idUser = req.dataToken.id;
+
+        const userInfo = await UserSchema.find({ _id: idUser });
         const data = await DesignerSchema.aggregate([
             {
                 $match: {
@@ -474,7 +484,7 @@ const user = {
             }
         ]);
 
-        res.json({ success: true, message: data });
+        res.json({ success: true, message: data, userInfo: userInfo[0] });
     },
 }
 
