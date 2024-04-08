@@ -123,6 +123,56 @@ const contract = {
             }
         })
     },
+    search_contract : async (req, res) => {
+        
+        const { startDate , endDate , codeContract , nameContract ,nameSignature } = req.body
+        const pipeline =  {
+            $match: {
+                $and: [
+                    { codeContract: { $regex: new RegExp(codeContract, 'i') } },
+                    { nameContract: { $regex: new RegExp(nameContract, 'i') } },
+                    { nameSignature: { $regex: new RegExp(nameSignature, 'i') } },
+                ]
+            }
+        }
+
+
+        if (startDate && endDate) {
+            pipeline.push({
+                $match: {
+                    createdAt: {
+                        $gte: new Date(startDate),
+                        $lte: new Date(endDate)
+                    }
+                }
+            });
+        } else if (endDate) {
+            pipeline.push({
+                $match: {
+                    createdAt: {
+                        $lte: new Date(endDate)
+                    }
+                }
+            });
+        } else if (startDate) {
+            pipeline.push({
+                $match: {
+                    createdAt: {
+                        $gte: new Date(startDate),
+                    }
+                }
+            });
+        }
+
+        const dataFind = await ContractSchema.aggregate(pipeline);
+         
+        return res.json({
+            message: "get contract success",
+            data: {
+                contract: dataFind
+            }
+        })
+    },
     
 
 }

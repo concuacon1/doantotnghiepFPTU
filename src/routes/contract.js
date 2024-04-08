@@ -35,4 +35,12 @@ router.get('/contract_detail/:id', authmiddleware, (req, res, next) => {
     next();
 }, rolemiddleware, Contract.get_contract_detail);
 
+
+router.post('/search_contract', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "STAFF"] };
+    next();
+}, rolemiddleware, Contract.search_contract);
+
+
+
 module.exports = router  
