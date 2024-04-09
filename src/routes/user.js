@@ -136,4 +136,9 @@ router.patch('/schedule/:designerId/update', authmiddleware, (req, res, next) =>
     next();
 }, rolemiddleware, Schedule.updateSchedule);
 
+
+router.get('/profile-me', authmiddleware, User.get_profile);
+router.post('/update_profile', authmiddleware, User.update_user);
+
+
 module.exports = router

@@ -408,20 +408,30 @@ const user = {
         }
 
         if ((role === "ADMIN" || role === "STAFF" || role === "CUSTOMER") && flagGetUser === "DESIGNER") {
-            pipeline.push({
-                $match: {
-                    $and: [
-                        { address: { $regex: new RegExp(address, 'i') } },
-                        { "dataDesigner.designfile": { $exists: true, $ne: null } },
-                        {
-                            $or: [
-                                { "dataDesigner.designfile": { $eq: designfile } }, // Thêm điều kiện chỉ khi designfile được truyền vào
-                                { "dataDesigner.designfile": { $ne: designfile } } // Thêm điều kiện trường hợp designfile không được truyền vào
-                            ]
-                        }
-                    ]
+             pipeline = [
+                {
+                    $match: {
+                        $and: [
+                            { address: { $regex: new RegExp(address, 'i') } },
+                            { "dataDesigner.designfile": { $exists: true, $ne: null } },
+                            {
+                                $or: [
+                                    { "dataDesigner.designfile": { $eq: designfile } },
+                                    { "dataDesigner.designfile": { $ne: designfile } }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'projectType',
+                        localField: 'dataDesigner.designfile',
+                        foreignField: '_id',
+                        as: 'dataProjectType'
+                    }
                 }
-            });
+            ];
         }
 
         if ((role === "ADMIN" || role === "STAFF") && (flagGetUser === "STAFF" || flagGetUser == "CUSTOMER")) {
@@ -465,7 +475,7 @@ const user = {
     },
     getDesignerInfo: async (req, res) => {
         const { designerId } = req.params;
-        const userInfo = await UserSchema.find({ _id: designerId });
+        const userInfo = await UserSchema.find({ designerId: designerId });
         res.json({ success: true, message: 'Get user info successfully', userInfo: userInfo[0] });
     },
     getInformationDESIGNER: async (req, res) => {
@@ -491,7 +501,30 @@ const user = {
 
         res.json({ success: true, message: data, userInfo: userInfo[0] });
     },
+    get_profile: async (req, res) => {
+        const { id, role } = req.dataToken;
+        let dataProfile = await UserSchema.aggregate([
+            {
+                $match: {
+                    _id: ObjectId(id),
+                }
+
+            },
+            {
+                $project: { password: 0 }
+            }
+
+        ])
+        res.json({ message: " ", data: dataProfile });
+    },
+    update_user: async (req, res) => {
+        let { id } = req.dataToken;
+        const { image, fullName, dob } = req.body
+        await UserSchema.findOneAndUpdate({ _id: id }, { $set: { imageUser: image, fullName: fullName, dob: dob } })
+        res.json({ message: "update thành công", data: {} });
+    }
 }
+
 
 const createAccessToken = (data) => {
     return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '11h' })

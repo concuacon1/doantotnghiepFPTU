@@ -9,6 +9,7 @@ router.get('/get_project_type', (req, res, next) => {
 }, Project.get_project_type);
 
 
+
 router.post('/post_project_type', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ['ADMIN', "STAFF"] };
     next();
@@ -38,8 +39,9 @@ router.get('/get_project', authmiddleware, (req, res, next) => {
 router.post('/get_project-for-type', Project.post_get_project_type);
 
 router.get('/get_project/:id', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF", "CUSTOMER"] };
     next();
-}, Project.get_project_category_id);
+}, rolemiddleware, Project.get_project_category_id);
 
 router.delete('/del_project/:id', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ["ADMIN", "DESIGNER", "STAFF"] };

@@ -41,6 +41,6 @@ router.post('/search_contract', authmiddleware, (req, res, next) => {
     next();
 }, rolemiddleware, Contract.search_contract);
 
-
+router.post('/email_colsulation', Contract.email_consulation);
 
 module.exports = router  

@@ -85,29 +85,27 @@ const contract = {
         })
     },
     check_contract: async (req, res) => {
-      const { userCode} = req.body;
-      const dataFind = await UserSchema.findOne({userCode : userCode , isActive : true, isDelete :false }).select("_id fullName");
-      if(!dataFind){
-        return res.status(400).json({ message: "Không tồn tại mã khách hàng" });
-      }
-      return res.json({
-        message: "get list success",
-        data: {
-            dataCustomer: dataFind
+        const { userCode } = req.body;
+        const dataFind = await UserSchema.findOne({ userCode: userCode, isActive: true, isDelete: false }).select("_id fullName");
+        if (!dataFind) {
+            return res.status(400).json({ message: "Không tồn tại mã khách hàng" });
         }
-    })
+        return res.json({
+            message: "get list success",
+            data: {
+                dataCustomer: dataFind
+            }
+        })
     },
-
-    email_consulation :  async (req, res) => {
-        const {  emailCustomer, fullName ,  phone , note } = req.body
+    email_consulation: async (req, res) => {
+        const { emailCustomer, fullName, phone, note } = req.body
         const dataSendEamil = {
-            emailCustomer, fullName ,  phone , note
+            emailCustomer, fullName, phone, note
         };
         await emailQueue.add('send-customer-consulation', dataSendEamil);
         return res.json({
             message: "Email thông báo cần tư vấn thành công",
             data: {
-              
             }
         })
     },
@@ -123,10 +121,11 @@ const contract = {
             }
         })
     },
-    search_contract : async (req, res) => {
-        
-        const { startDate , endDate , codeContract , nameContract ,nameSignature } = req.body
-        const pipeline =  {
+    search_contract: async (req, res) => {
+        const { startDate, endDate, codeContract, nameContract, nameSignature } = req.body;
+        const pipeline = [];
+
+        pipeline.push({
             $match: {
                 $and: [
                     { codeContract: { $regex: new RegExp(codeContract, 'i') } },
@@ -134,8 +133,7 @@ const contract = {
                     { nameSignature: { $regex: new RegExp(nameSignature, 'i') } },
                 ]
             }
-        }
-
+        });
 
         if (startDate && endDate) {
             pipeline.push({
@@ -158,14 +156,14 @@ const contract = {
             pipeline.push({
                 $match: {
                     createdAt: {
-                        $gte: new Date(startDate),
+                        $gte: new Date(startDate)
                     }
                 }
             });
         }
 
         const dataFind = await ContractSchema.aggregate(pipeline);
-         
+
         return res.json({
             message: "get contract success",
             data: {
@@ -173,7 +171,7 @@ const contract = {
             }
         })
     },
-    
+
 
 }
 
