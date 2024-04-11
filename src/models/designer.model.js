@@ -6,7 +6,6 @@ const { Schema } = mongoose;
 const DesignerSchema = new Schema({
     designerId: { type: Schema.Types.ObjectId, ref: 'users' , default : null},
     cv: { type: String },
-    imageDesigner : { type: String ,default :"" },
     listImageProject : { type: Array , default: [] },
     skill : { type: Array , default: [] },
     experience : { type: Array , default: [] },

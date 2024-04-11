@@ -380,60 +380,47 @@ const user = {
                     preserveNullAndEmptyArrays: true
                 }
             });
-
-
-
-            // // If dataDesigner is null or empty array, set it to an empty object
-            // pipeline.push({
-            //     $addFields: {
-            //         dataDesigner: { $ifNull: ["$dataDesigner.", {}] }
-            //     }
-            // });
-
-            // pipeline.push({
-            //     $match: {
-            //         "dataDesigner.designfile": { $exists: true, $ne: null }
-            //     }
-            // });
-
-            // pipeline.push({
-            //     $match: {
-            //         $and: [
-            //             { "dataDesigner.designfile": { $exists: true } }, // Kiểm tra xem trường designfile tồn tại
-            //             { "dataDesigner.designfile": { $eq: designfile } } // Kiểm tra xem trường designfile không bằng giá trị được truyền vào
-            //         ]
-            //     }
-            // });
-
         }
 
         if ((role === "ADMIN" || role === "STAFF" || role === "CUSTOMER") && flagGetUser === "DESIGNER") {
-             pipeline = [
-                {
+            if (!!designfile && designfile.length > 0) {
+                pipeline.push({
                     $match: {
                         $and: [
                             { address: { $regex: new RegExp(address, 'i') } },
                             { "dataDesigner.designfile": { $exists: true, $ne: null } },
-                            {
-                                $or: [
-                                    { "dataDesigner.designfile": { $eq: designfile } },
-                                    { "dataDesigner.designfile": { $ne: designfile } }
-                                ]
-                            }
+                            { "dataDesigner.designfile": ObjectId(designfile) } // Thay đổi ở đây, chỉ lấy những documents có "dataDesigner.designfile" giống với designfile
                         ]
                     }
-                },
-                {
-                    $lookup: {
-                        from: 'projectType',
-                        localField: 'dataDesigner.designfile',
-                        foreignField: '_id',
-                        as: 'dataProjectType'
+                });
+            } else {
+                pipeline.push({
+                    $match: {
+                        $and: [
+                            { address: { $regex: new RegExp(address, 'i') } },
+                            { "dataDesigner.designfile": { $exists: true, $ne: null } },
+                        ]
                     }
-                }
-            ];
-        }
+                });
+            }
 
+
+            // pipeline.push({
+            //     $unwind: {
+            //         path: "$dataDesigner_check",
+            //         preserveNullAndEmptyArrays: true
+            //     }
+            // });
+
+            // pipeline.push({
+            //     $lookup: {
+            //         from: 'projectType',
+            //         localField: '_id',
+            //         foreignField: 'dataDesigner_check.designfile',
+            //         as: 'nameType'
+            //     }
+            // });
+        }
         if ((role === "ADMIN" || role === "STAFF") && (flagGetUser === "STAFF" || flagGetUser == "CUSTOMER")) {
             pipeline.push({
                 $match: {
@@ -475,7 +462,7 @@ const user = {
     },
     getDesignerInfo: async (req, res) => {
         const { designerId } = req.params;
-        const userInfo = await UserSchema.find({ designerId: designerId });
+        const userInfo = await DesignerSchema.find({ designerId: designerId });
         res.json({ success: true, message: 'Get user info successfully', userInfo: userInfo[0] });
     },
     getInformationDESIGNER: async (req, res) => {
@@ -519,8 +506,8 @@ const user = {
     },
     update_user: async (req, res) => {
         let { id } = req.dataToken;
-        const { image, fullName, dob } = req.body
-        await UserSchema.findOneAndUpdate({ _id: id }, { $set: { imageUser: image, fullName: fullName, dob: dob } })
+        const { image, fullName, dob, phoneNumber, email } = req.body
+        await UserSchema.findOneAndUpdate({ _id: id }, { $set: { imageUser: image, fullName: fullName, dob: dob, phoneNumber: phoneNumber, email: email } })
         res.json({ message: "update thành công", data: {} });
     }
 }

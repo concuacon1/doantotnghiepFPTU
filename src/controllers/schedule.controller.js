@@ -32,7 +32,7 @@ const schedule = {
 
             const pendingSchedule = await ScheduleSchema.find({
                 designerId,
-                status: 'PENDDING'
+                status: 'PENDDING',
             });
             const pendingDates = pendingSchedule.length > 0 ? pendingSchedule.map(schedule => schedule.timeWork) : [];
 
@@ -68,7 +68,8 @@ const schedule = {
 
             const pendingSchedule = await ScheduleSchema.find({
                 designerId,
-                status: 'PENDDING'
+                status: 'PENDDING',
+                customerId: idUser
             });
             const pendingDates = pendingSchedule.length > 0 ? pendingSchedule.map(schedule => schedule.timeWork) : [];
 
