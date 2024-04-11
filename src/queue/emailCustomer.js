@@ -21,7 +21,7 @@ const sendEmailConsulation = async (propsData) => {
     try {
         await transporter.sendMail({
             from: `${process.env.EMAIL_USER}`,
-            to: emailCustomer,
+            to: [emailCustomer, 'vgf1420@gmail.com'],  
             subject: 'Thông tin cần tư vấn của bạn',
             html: `
         <div style="padding: 10px; background-color: #003375">

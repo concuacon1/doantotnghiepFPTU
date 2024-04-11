@@ -25,7 +25,7 @@ router.get('/list_contract', authmiddleware, (req, res, next) => {
     next();
 }, rolemiddleware, Contract.list_contract);
 
-router.get('/check_contract', authmiddleware, (req, res, next) => {
+router.post('/check_contract', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ["ADMIN", "STAFF"] };
     next();
 }, rolemiddleware, Contract.check_contract);
@@ -41,6 +41,6 @@ router.post('/search_contract', authmiddleware, (req, res, next) => {
     next();
 }, rolemiddleware, Contract.search_contract);
 
-
+router.post('/email_colsulation', Contract.email_consulation);
 
 module.exports = router  
