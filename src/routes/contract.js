@@ -25,6 +25,11 @@ router.get('/list_contract', authmiddleware, (req, res, next) => {
     next();
 }, rolemiddleware, Contract.list_contract);
 
+router.get('/list_contract_user', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ["CUSTOMER"] };
+    next();
+}, rolemiddleware, Contract.list_contract_user);
+
 router.post('/check_contract', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ["ADMIN", "STAFF"] };
     next();

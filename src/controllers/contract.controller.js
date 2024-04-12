@@ -84,6 +84,45 @@ const contract = {
             }
         })
     },
+    list_contract_user: async (req, res) => {
+        const custormerId = req.dataToken.id;
+
+        const listData = await ContractSchema.aggregate([
+            {
+                $match: {
+                    isDelete: false
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    let: { custormerId: '$custormerId' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ['$_id', '$$custormerId'] }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1,
+                                email: 1 // Include other fields you want to retrieve
+                            }
+                        }
+                    ],
+                    as: 'customerData'
+                }
+            }
+        ]);
+
+        return res.json({
+            message: "get list success",
+            data: {
+                listContract: listData
+            }
+        })
+    },
     check_contract: async (req, res) => {
         const { userCode } = req.body;
         const dataFind = await UserSchema.findOne({ userCode: userCode, isActive: true, isDelete: false }).select("_id fullName");

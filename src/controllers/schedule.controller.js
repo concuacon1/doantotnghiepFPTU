@@ -125,7 +125,7 @@ const schedule = {
             const existBooked = await ScheduleSchema.find({ customerId: idUser, status: { $ne: 'REJECT' }, timeWork: { $ne: null } });
 
             if (existBooked.length > 0) {
-                return res.status(400).json({ message: "Bạn đã đặt lịch Designer khác rồi" });
+                return res.status(400).json({ message: "Bạn đã đặt lịch kiến trúc sư khác rồi" });
             }
         }
 
@@ -138,7 +138,7 @@ const schedule = {
 
         const designerScheduleExist = await ScheduleSchema.find({ designerId: id_schedule, timeWork: timeWork, status: { $ne: 'REJECT' } });
         if (designerScheduleExist.length > 1) {
-            return res.status(400).json({ message: "Designer này đã có lịch hẹn rồi" });
+            return res.status(400).json({ message: "Kiến trúc sư này đã có lịch hẹn rồi" });
         }
 
         if (role === 'ADMIN' || role === 'STAFF') {
@@ -241,6 +241,12 @@ const schedule = {
                 workOn: true
             });
 
+            let pendingSchedule = await ScheduleSchema.find({
+                customerId: idUser,
+                workOn: false,
+                status: 'PENDDING'
+            });
+
             scheduleList = await Promise.all(scheduleList.map(async (schedule) => {
                 const designer = await DesignerSchema.findOne({ _id: schedule.designerId });
                 let user = null;
@@ -253,7 +259,7 @@ const schedule = {
                 };
             }));
 
-            return res.json({ message: "Lấy thông tin đặt lịch thành công", data: scheduleList });
+            return res.json({ message: "Lấy thông tin đặt lịch thành công", data: { scheduleList, pendingSchedule } });
         } catch (error) {
             console.log(error);
             return res.status(500).json({ message: "Đã xảy ra lỗi khi lấy thông tin đặt lịch" });
@@ -270,7 +276,8 @@ const schedule = {
                 ]
             };
 
-            let schedules = await ScheduleSchema.find(query);
+            // Thêm .sort({ timeWork: -1 }) để sắp xếp giảm dần theo timeWork
+            let schedules = await ScheduleSchema.find(query).sort({ timeWork: -1 });
 
             schedules = await Promise.all(schedules.map(async (schedule) => {
                 const designer = await DesignerSchema.findOne({ _id: schedule.designerId });
