@@ -8,6 +8,7 @@ const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 const emailQueue = require('../queue/sendEmailQueue');
+const convertUtcToGmt7 = require('../helper/formatTimeZone');
 
 const user = {
     register_user: async (req, res) => {
@@ -184,8 +185,8 @@ const user = {
             pipeline.push({
                 $match: {
                     createdAt: {
-                        $gte: new Date(startDate),
-                        $lte: new Date(endDate)
+                        $gte: convertUtcToGmt7(startDate, true),
+                        $lte: convertUtcToGmt7(endDate, true, true)
                     }
                 }
             });
@@ -330,6 +331,7 @@ const user = {
         const { userCode, fullName, email, phoneNumber, flagGetUser, address, designfile } = req.body;
         const { role } = req.dataToken;
         let roleSeach = '';
+
 
         if ((role === "ADMIN" || role === "DESIGNER" || role === "STAFF") && flagGetUser == "CUSTOMER") {
             roleSeach = "CUSTOMER"
