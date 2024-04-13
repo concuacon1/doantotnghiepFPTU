@@ -2,6 +2,7 @@
 const ContractSchema = require("../models/contract.model");
 const ProjectSchema = require("../models/project.model")
 const CategoriesSchema = require("../models/categories.model")
+const moment = require('moment')
 const UserSchema = require('../models/user.model');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
@@ -76,11 +77,15 @@ const contract = {
                 }
             }
         ]);
+        const yesterday = moment().format("YYYY-MM-DD");
+        const query = { createdAt: { $gte: yesterday, $lt: new Date() } };
+        const countFind = await ContractSchema.countDocuments(query);
 
         return res.json({
             message: "get list success",
             data: {
-                listContract: listData
+                listContract: listData,
+                count : countFind
             }
         })
     },

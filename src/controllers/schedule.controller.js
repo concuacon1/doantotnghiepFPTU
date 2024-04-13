@@ -2,6 +2,7 @@ const ScheduleSchema = require("../models/schedule.model")
 const UserSchema = require("../models/user.model")
 const DesignerSchema = require("../models/designer.model")
 const mongoose = require('mongoose');
+const convertUtcToGmt7 = require("../helper/formatTimeZone");
 const ObjectId = mongoose.Types.ObjectId;
 
 const schedule = {
@@ -318,8 +319,8 @@ const schedule = {
             if (time !== 'All' && time !== '') query.timeSelect = time;
             if (startDate && endDate) {
                 query['timeWork'] = {
-                    $gte: startDate,
-                    $lte: endDate,
+                    $gte: convertUtcToGmt7(startDate),
+                    $lte: convertUtcToGmt7(endDate),
                 };
             }
 
