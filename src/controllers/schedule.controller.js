@@ -315,7 +315,7 @@ const schedule = {
 
             const query = {};
 
-            if (time != 'All') query.timeSelect = time;
+            if (time !== 'All' && time !== '') query.timeSelect = time;
             if (startDate && endDate) {
                 query['timeWork'] = {
                     $gte: startDate,
@@ -326,18 +326,19 @@ const schedule = {
             if (designerName) {
                 const designer = await UserSchema.findOne({
                     fullName: { $regex: new RegExp(designerName, 'i') },
-                    role: 'DESIGNER'
+                    role: { $in: ['DESIGNER', 'ADMIN', 'STAFF'] }
                 });
                 if (designer) {
                     let des = await DesignerSchema.find({ designerId: designer._id })
-                    query['designerId'] = des[0]._id;
+                    if (des.length > 0) {
+                        query['designerId'] = des[0]._id;
+                    }
                 }
             }
 
             if (customerName) {
                 const customer = await UserSchema.findOne({
                     fullName: { $regex: new RegExp(customerName, 'i') },
-                    role: 'CUSTOMER'
                 });
                 if (customer) {
                     query['customerId'] = customer._id;
@@ -346,8 +347,7 @@ const schedule = {
 
             const finalQuery = { ...baseQuery, ...query };
 
-            let schedules = await ScheduleSchema.find(finalQuery);
-
+            let schedules = await ScheduleSchema.find(finalQuery).sort({ timeWork: -1 });
             schedules = await Promise.all(schedules.map(async (schedule) => {
                 let designer = await DesignerSchema.findOne({ _id: schedule.designerId });
                 let userDesigner = null;
