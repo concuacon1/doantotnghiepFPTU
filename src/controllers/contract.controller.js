@@ -7,6 +7,7 @@ const UserSchema = require('../models/user.model');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 const emailQueue = require('../queue/sendEmailQueue');
+const convertUtcToGmt7 = require("../helper/formatTimeZone");
 
 const contract = {
     create_contract: async (req, res) => {
@@ -77,7 +78,9 @@ const contract = {
                 }
             }
         ]);
-        const yesterday = moment().format("YYYY-MM-DD");
+        const yesterday = convertUtcToGmt7.getCreatedTimezone(new Date());
+        console.log('yesterday == ', yesterday);
+        console.log('today == ', new Date());
         const query = { createdAt: { $gte: yesterday, $lt: new Date() } };
         const countFind = await ContractSchema.countDocuments(query);
 
@@ -85,7 +88,7 @@ const contract = {
             message: "get list success",
             data: {
                 listContract: listData,
-                count : countFind
+                count: countFind
             }
         })
     },
@@ -143,9 +146,9 @@ const contract = {
     },
 
     email_consulation: async (req, res) => {
-        const { emailCustomer, fullName, phone, note } = req.body
+        const { emailCustomer, fullName, phone, note, address } = req.body
         const dataSendEamil = {
-            emailCustomer, fullName, phone, note
+            emailCustomer, fullName, phone, note, address
         };
         await emailQueue.add('send-customer-consulation', dataSendEamil);
         return res.json({

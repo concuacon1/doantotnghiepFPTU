@@ -443,15 +443,17 @@ const user = {
     updateInformationDESIGNER: async (req, res) => {
         const { id } = req.dataToken;
         const { imageDesigner, listImageProject, skill, designfile, experience, description } = req.body;
+        let updateUser = { description };
+        if (imageDesigner) updateUser.imageUser = imageDesigner;
+
         await UserSchema.findOneAndUpdate(
             { _id: id },
-            { $set: { description } },
+            { $set: updateUser },
             { new: true }
         )
         let updateObject = { skill, designfile, experience };
 
         if (listImageProject.length > 0) updateObject.listImageProject = listImageProject;
-        if (imageDesigner) updateObject.imageDesigner = imageDesigner;
 
         await DesignerSchema.findOneAndUpdate(
             { designerId: id },
