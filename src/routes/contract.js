@@ -10,7 +10,7 @@ router.post('/create_contract', authmiddleware, (req, res, next) => {
 }, rolemiddleware, Contract.create_contract);
 
 
-router.get('/contract_me', authmiddleware, (req, res, next) => {
+router.get('/contact_me', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ["CUSTOMER"] };
     next();
 }, rolemiddleware, Contract.contract_persion);
@@ -36,7 +36,7 @@ router.post('/check_contract', authmiddleware, (req, res, next) => {
 }, rolemiddleware, Contract.check_contract);
 
 router.get('/contract_detail/:id', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "STAFF"] };
+    req.dataRole = { list_role: ["ADMIN", "STAFF", "CUSTOMER"] };
     next();
 }, rolemiddleware, Contract.get_contract_detail);
 

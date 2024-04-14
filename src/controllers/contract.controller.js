@@ -76,6 +76,27 @@ const contract = {
                     ],
                     as: 'customerData'
                 }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    let: { designerId: '$designerId' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ['$_id', '$$designerId'] }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1,
+                                email: 1 // Include other fields you want to retrieve
+                            }
+                        }
+                    ],
+                    as: 'designerData'
+                }
             }
         ]);
         const yesterday = convertUtcToGmt7.getCreatedTimezone(new Date());
@@ -94,11 +115,12 @@ const contract = {
     },
     list_contract_user: async (req, res) => {
         const custormerId = req.dataToken.id;
-
+        console.log('custormerId == ', custormerId);
         const listData = await ContractSchema.aggregate([
             {
                 $match: {
-                    isDelete: false
+                    isDelete: false,
+                    custormerId: ObjectId(custormerId)
                 }
             },
             {
@@ -120,6 +142,27 @@ const contract = {
                         }
                     ],
                     as: 'customerData'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    let: { designerId: '$designerId' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ['$_id', '$$designerId'] }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1,
+                                email: 1 // Include other fields you want to retrieve
+                            }
+                        }
+                    ],
+                    as: 'designerData'
                 }
             }
         ]);
