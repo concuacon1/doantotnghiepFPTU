@@ -16,7 +16,7 @@ const project = {
         const { nameProjectType } = req.body
         const data = await ProjectTypeSchema.findOne({ nameProjectType });
         if (data) {
-            return res.status(400).json({ message: "projectType đã tồn tại trong hệ thống" })
+            return res.status(400).json({ message: "Loại phòng mới đã tồn tại trong hệ thống" })
         }
 
         const datasave = new ProjectTypeSchema({
@@ -45,7 +45,7 @@ const project = {
         const { nameProjectTypeNew } = req.body;
         const data = await ProjectTypeSchema.findOne({ nameProjectType: nameProjectTypeNew });
         if (data) {
-            return res.status(400).json({ message: "projectTypeNew đã tồn tại trong hệ thống" })
+            return res.status(400).json({ message: "Loại phòng mới đã tồn tại trong hệ thống" })
         }
     },
     check_design: async (req, res) => {
