@@ -15,4 +15,10 @@ function convertUtcToGmt7(utcDateString, gmt = null, end = null) {
     return formattedDate;
 }
 
-module.exports = convertUtcToGmt7
+function getCreatedTimezone(utcDateString) {
+    const utcDate = new Date(utcDateString);
+    utcDate.setUTCHours(0, 0, 0, 0);
+    return new Date(utcDate.getTime() - 7 * 3600 * 1000);
+}
+
+module.exports = { convertUtcToGmt7, getCreatedTimezone }
