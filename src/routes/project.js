@@ -8,15 +8,17 @@ router.get('/get_project_type', (req, res, next) => {
     next();
 }, Project.get_project_type);
 
-router.post('/create_project', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ['ADMIN', "STAFF"] };
-    next();
-}, rolemiddleware, Project.create_project_category);
 
 router.post('/post_project_type', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ['ADMIN', "STAFF"] };
     next();
 }, rolemiddleware, Project.create_project_type);
+
+router.post('/create_project', authmiddleware, (req, res, next) => {
+    req.dataRole = { list_role: ['ADMIN', "STAFF"] };
+    next();
+}, rolemiddleware, Project.create_project_category);
+
 
 router.post('/check_project_type', authmiddleware, (req, res, next) => {
     req.dataRole = { list_role: ['ADMIN', "STAFF"] };
