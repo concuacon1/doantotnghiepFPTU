@@ -10,7 +10,8 @@ const jwtVerify = (token, secret) =>
     });
 
 const authorizeUser = (socket, next) => {
-    const token = socket.handshake.auth.token;
+    const token = socket.handshake.headers.token;
+    // const token =  socket.handshake.query.token;
     jwtVerify(token, process.env.ACCESS_TOKEN_SECRET)
         .then(decoded => {
             socket.user = { ...decoded };

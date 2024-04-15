@@ -92,7 +92,7 @@ router.get('/create-schedule', authmiddleware, (req, res, next) => {
 }, rolemiddleware, Schedule.createSchedule);
 
 router.get('/schedule/designer-info', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "DESIGNER"] }
+    req.dataRole = { list_role: ["ADMIN", "STAFF", "DESIGNER"] }
     next();
 }, rolemiddleware, Schedule.getScheduleInfoByDesigner)
 
