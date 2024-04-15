@@ -1,6 +1,5 @@
 const router = require('express').Router()
 const User = require('./../controllers/user.controller')
-const Chat = require("./../controllers/chat.controller");
 const Schedule = require('./../controllers/schedule.controller')
 const { checkSchema } = require("express-validator")
 const { createUserValidatorSchema, validatorPasswordChange, validatorPasswordChangeOTP } = require("../validator/user_validator")
@@ -93,7 +92,7 @@ router.get('/create-schedule', authmiddleware, (req, res, next) => {
 }, rolemiddleware, Schedule.createSchedule);
 
 router.get('/schedule/designer-info', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "DESIGNER"] }
+    req.dataRole = { list_role: ["ADMIN", "STAFF", "DESIGNER"] }
     next();
 }, rolemiddleware, Schedule.getScheduleInfoByDesigner)
 
@@ -138,29 +137,8 @@ router.patch('/schedule/:designerId/update', authmiddleware, (req, res, next) =>
 }, rolemiddleware, Schedule.updateSchedule);
 
 
-router.get('/profile-me', authmiddleware, User.get_profile);
-router.post('/update_profile', authmiddleware, User.update_user);
-
-
-router.post('/list_message_last', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "STAFF", "CUSTOMER"] }
-    next();
-}, rolemiddleware, Chat.get_message_last);
-
-router.post('/get_message_chat', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "STAFF"] }
-    next();
-}, rolemiddleware, Chat.item_message_chat);
-
-router.post('/update_unread', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "STAFF"] }
-    next();
-}, rolemiddleware, Chat.update_unread);
-
-router.post('/search_message_chat', authmiddleware, (req, res, next) => {
-    req.dataRole = { list_role: ["ADMIN", "STAFF"] }
-    next();
-}, rolemiddleware, Chat.search_data);
+router.get('/profile-me', authmiddleware , User.get_profile);
+router.post('/update_profile', authmiddleware , User.update_user);
 
 
 module.exports = router

@@ -14,14 +14,14 @@ const mongoose = require('mongoose');
 const URI = process.env.DATABASE_URL
 const blockedUserAgents = ['Postman', 'postman'];
 
-// app.use((req, res, next) => {
-//   const userAgent = req.get('user-agent');
-//   if (blockedUserAgents.some(agent => userAgent.includes(agent))) {
-//     res.status(403).send('Access forbidden Post man');
-//   } else { 
-//     next();
-//   }
-// });
+app.use((req, res, next) => {
+  const userAgent = req.get('user-agent');
+  if (blockedUserAgents.some(agent => userAgent.includes(agent))) {
+    res.status(403).send('Access forbidden Post man');
+  } else { 
+    next();
+  }
+});
 
 mongoose.connect(URI, {
   useCreateIndex: true,
