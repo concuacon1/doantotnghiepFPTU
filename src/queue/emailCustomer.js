@@ -29,7 +29,7 @@ const sendEmailConsulation = async (propsData) => {
                 <h2 style="color: #0085ff"> Họ và tên khách hàng : ${fullName} </h2>
                 <h3 style="color: #0085ff"> Số điện thoại khách hàng : ${phone} </h3>
                 <h3 style="color: #0085ff"> Ghi chú  : ${note} </h3>
-                <h3 style="color: #0085ff"> Dia diem  : ${address} </h3>
+                <h3 style="color: #0085ff"> Địa điểm  : ${address} </h3>
                 <h3 style="color: #0085ff"> Chúng tôi sẽ trả lời bạn từ 1 đến 3 ngày </h3>
             </div>
         </div>
