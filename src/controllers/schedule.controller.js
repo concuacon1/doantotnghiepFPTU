@@ -2,7 +2,7 @@ const ScheduleSchema = require("../models/schedule.model")
 const UserSchema = require("../models/user.model")
 const DesignerSchema = require("../models/designer.model")
 const mongoose = require('mongoose');
-const convertUtcToGmt7 = require("../helper/formatTimeZone");
+const { convertUtcToGmt7 } = require("../helper/formatTimeZone");
 const ObjectId = mongoose.Types.ObjectId;
 
 const schedule = {
