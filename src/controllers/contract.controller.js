@@ -222,6 +222,7 @@ const contract = {
                 $and: [
                     { codeContract: { $regex: new RegExp(codeContract, 'i') } },
                     { nameSignature: { $regex: new RegExp(nameSignature, 'i') } },
+                    { isDelete: false },
                 ]
             }
         });
@@ -241,6 +242,14 @@ const contract = {
                 preserveNullAndEmptyArrays: true
             }
         });
+        pipeline.push({
+            $lookup: {
+                from: 'users',
+                localField: 'designerId',
+                foreignField: '_id',
+                as: 'designerData'
+            }
+        })
 
         pipeline.push({
             $match: {
