@@ -322,28 +322,51 @@ const schedule = {
                     $gte: convertUtcToGmt7(startDate),
                     $lte: convertUtcToGmt7(endDate),
                 };
+            } else if (startDate) {
+                query['timeWork'] = {
+                    $gte: convertUtcToGmt7(startDate),
+                };
+            } else if (endDate) {
+                query['timeWork'] = {
+                    $lte: convertUtcToGmt7(endDate),
+                };
             }
 
             if (designerName) {
-                const designer = await UserSchema.findOne({
-                    fullName: { $regex: new RegExp(designerName, 'i') },
+                const regex = new RegExp('.*' + designerName + '.*', 'i');
+                const designers = await UserSchema.find({
+                    fullName: { $regex: regex },
                     role: { $in: ['DESIGNER', 'ADMIN', 'STAFF'] }
                 });
-                if (designer) {
-                    let des = await DesignerSchema.find({ designerId: designer._id })
+                if (designers.length === 0) {
+                    return res.json({ message: "Lấy thông tin đặt lịch thành công", data: [] });
+                }
+                const designerIds = [];
+                for (let designer of designers) {
+                    const des = await DesignerSchema.find({ designerId: designer._id });
                     if (des.length > 0) {
-                        query['designerId'] = des[0]._id;
+                        designerIds.push(des[0]._id);
                     }
+                }
+            
+                if (designerIds.length > 0) {
+                    query['designerId'] = { $in: designerIds };
                 }
             }
 
             if (customerName) {
-                const customer = await UserSchema.findOne({
-                    fullName: { $regex: new RegExp(customerName, 'i') },
+                let regex = new RegExp('.*' + customerName + '.*', 'i');
+                const customers = await UserSchema.find({
+                    fullName: { $regex: regex },
                 });
-                if (customer) {
-                    query['customerId'] = customer._id;
+            
+                if (customers.length === 0) {
+                    return res.json({ message: "Không tìm thấy thông tin khách hàng", data: [] });
                 }
+            
+                const customerIds = customers.map(customer => customer._id);
+            
+                query['customerId'] = { $in: customerIds };
             }
 
             const finalQuery = { ...baseQuery, ...query };
