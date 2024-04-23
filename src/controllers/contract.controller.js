@@ -102,7 +102,7 @@ const contract = {
         const yesterday = convertUtcToGmt7.getCreatedTimezone(new Date());
         console.log('yesterday == ', yesterday);
         console.log('today == ', new Date());
-        const query = { createdAt: { $gte: yesterday, $lt: new Date() } };
+        const query = { createdAt: { $gte: yesterday, $lt: new Date() }, isDelete: false };
         const countFind = await ContractSchema.countDocuments(query);
 
         return res.json({
@@ -214,18 +214,9 @@ const contract = {
         })
     },
     search_contract: async (req, res) => {
-        const { startDate, endDate, codeContract, customerName, nameSignature } = req.body;
+        const { startDate, endDate, codeContract, customerName, nameSignature, designerName } = req.body;
         const pipeline = [];
 
-        pipeline.push({
-            $match: {
-                $and: [
-                    { codeContract: { $regex: new RegExp(codeContract, 'i') } },
-                    { nameSignature: { $regex: new RegExp(nameSignature, 'i') } },
-                    { isDelete: false },
-                ]
-            }
-        });
 
         pipeline.push({
             $lookup: {
@@ -256,7 +247,9 @@ const contract = {
                 $and: [
                     { codeContract: { $regex: new RegExp(codeContract, 'i') } },
                     { nameSignature: { $regex: new RegExp(nameSignature, 'i') } },
-                    { "dataCustomer.fullName": { $regex: new RegExp(customerName, 'i') } }
+                    { "dataCustomer.fullName": { $regex: new RegExp(customerName, 'i') } },
+                    { "designerData.fullName": { $regex: new RegExp(designerName, 'i') } },
+                    { isDelete: false },
                 ]
             }
         });
@@ -265,7 +258,7 @@ const contract = {
         if (startDate && endDate) {
             pipeline.push({
                 $match: {
-                    createdAt: {
+                    timeSigned: {
                         $gte: new Date(startDate),
                         $lte: new Date(endDate)
                     }
@@ -274,7 +267,7 @@ const contract = {
         } else if (endDate) {
             pipeline.push({
                 $match: {
-                    createdAt: {
+                    timeSigned: {
                         $lte: new Date(endDate)
                     }
                 }
@@ -282,7 +275,7 @@ const contract = {
         } else if (startDate) {
             pipeline.push({
                 $match: {
-                    createdAt: {
+                    timeSigned: {
                         $gte: new Date(startDate)
                     }
                 }
