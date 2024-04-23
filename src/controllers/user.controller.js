@@ -8,6 +8,7 @@ const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 const emailQueue = require('../queue/sendEmailQueue');
+const { convertUtcToGmt7 } = require('../helper/formatTimeZone');
 
 const user = {
     register_user: async (req, res) => {
@@ -184,8 +185,8 @@ const user = {
             pipeline.push({
                 $match: {
                     createdAt: {
-                        $gte: new Date(startDate),
-                        $lte: new Date(endDate)
+                        $gte: convertUtcToGmt7(startDate, true),
+                        $lte: convertUtcToGmt7(endDate, true, true)
                     }
                 }
             });
@@ -331,6 +332,7 @@ const user = {
         const { role } = req.dataToken;
         let roleSeach = '';
 
+
         if ((role === "ADMIN" || role === "DESIGNER" || role === "STAFF") && flagGetUser == "CUSTOMER") {
             roleSeach = "CUSTOMER"
         }
@@ -441,15 +443,17 @@ const user = {
     updateInformationDESIGNER: async (req, res) => {
         const { id } = req.dataToken;
         const { imageDesigner, listImageProject, skill, designfile, experience, description } = req.body;
+        let updateUser = { description };
+        if (imageDesigner) updateUser.imageUser = imageDesigner;
+
         await UserSchema.findOneAndUpdate(
             { _id: id },
-            { $set: { description } },
+            { $set: updateUser },
             { new: true }
         )
         let updateObject = { skill, designfile, experience };
 
         if (listImageProject.length > 0) updateObject.listImageProject = listImageProject;
-        if (imageDesigner) updateObject.imageDesigner = imageDesigner;
 
         await DesignerSchema.findOneAndUpdate(
             { designerId: id },

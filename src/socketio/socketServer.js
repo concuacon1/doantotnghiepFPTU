@@ -1,47 +1,66 @@
 
-let listUserCustomer = [];
-let listUserStaffAndAdmin = [];
-let listRoomCustomer = [];
+let listUserStaffAndAdminOnline = [];
+// array = { id  : string and socketIds  : array }
+let listUserCustomerOnline = [];
 
-const SocketServer = (socket , io) => {
+let roomChat = [];
+// array  { id  : string and idCustomer  : array   , numberStaff : number}
+const emailQueue = require('../queue/sendEmailQueue');
+
+const SocketServer = (socket, io) => {
     socket.on('disconnect', () => {
-        // Xóa người dùng khỏi danh sách khi họ ngắt kết nối
-        listUserCustomer = listUserCustomer.filter(user => user.socketId !== socket.id);
-        console.log("list_online_after_off", listUserCustomer);
+        const { id, role } = socket.user;
+        if (role == "ADMIN" || role == "STAFF") {
+            listUserStaffAndAdminOnline.filter(item => item.id != id)
+        } else {
+            listUserCustomerOnline.filter(item => item.id != id)
+        }
     });
 
-    socket.on('joinRoom', () => {
-        const { id, role } = socket.dataUser;
-        if (role === "CUSTOMER") {
-            // Nếu là khách hàng, thêm vào danh sách người dùng trực tuyến
-            const fineUserOnlineForIdUser = listUserCustomer.find(e => e.idUser === id);
-            const fineUserOnlineForSocketId = listUserCustomer.find(e => e.socketId === socket.id);
-            let roomId = `customer_${id}`;
-            console.log(roomId)
-            if (!fineUserOnlineForIdUser && !fineUserOnlineForSocketId) {
-                listUserCustomer.push({ idUser: id, socketId: socket.id, role: role, roomId: roomId });
-                console.log("list_online_customer", listUserCustomer);
-                // Khi khách hàng trực tuyến, tất cả các nhân viên và quản trị viên cũng tham gia vào phòng của khách hàng
-                socket.join("customer_66081195f494cd37084d30b5");
+
+    socket.on('online_user', () => {
+        const { id, role } = socket.user;
+        const socketId = socket.id;
+        if (role == "ADMIN" || role == "STAFF") {
+            const findIndexData = listUserStaffAndAdminOnline.findIndex(item => item.id == id);
+            if (findIndexData > -1) {
+                listUserStaffAndAdminOnline.socketId = socketId
+            } else {
+                listUserStaffAndAdminOnline.push({
+                    id: id,
+                    socketId: socketId
+                })
             }
-        } else if (role === "ADMIN" || role === "STAFF") {
-            // Nếu là quản trị viên hoặc nhân viên, thêm vào danh sách người dùng trực tuyến
-            const fineUserOnlineForIdUserAdminAndStaff = listUserStaffAndAdmin.find(e => e.idUser === id);
-            const fineUserOnlineForSocketIdAdminAndStaff = listUserStaffAndAdmin.find(e => e.socketId === socket.id);
-            if (!fineUserOnlineForIdUserAdminAndStaff && !fineUserOnlineForSocketIdAdminAndStaff) {
-                listUserStaffAndAdmin.push({ idUser: id, socketId: socket.id, role: role });
-                console.log("list_online_admin", listUserStaffAndAdmin);
+        } else {
+            const findIndexData = listUserCustomerOnline.findIndex(item => item.id == id);
+            if (findIndexData > -1) {
+                listUserCustomerOnline.socketId = socketId
+            } else {
+                listUserCustomerOnline.push({
+                    id: id,
+                    socketId: socketId
+                })
             }
         }
-        socket.join("customer_66081195f494cd37084d30b5");
     });
 
-    socket.on("message", (dataClient) => {
-        const { roomName, message } = dataClient;
-        console.log(`data_chat: ${roomName} ${message}`);
-        // Gửi tin nhắn đến phòng
-        io.to("customer_66081195f494cd37084d30b5").emit('message', message);
+
+    socket.on("message", async (dataClient) => {
+        const { noUserOnline } = dataClient;
+        let randomIndex = Math.floor(Math.random() * listUserStaffAndAdminOnline.length);
+        let listUserChatOnline = listUserStaffAndAdminOnline[randomIndex];
+        if (!noUserOnline) {
+            io.to(listUserChatOnline.socketId).emit('message_chat', dataClient);
+        }
+        await emailQueue.add('update_message', dataClient);
     });
+
+
+    socket.on("get_customer_online", () => {
+        const socketId = socket.id;
+        io.to(socketId).emit('list_customer_online', listUserCustomerOnline);
+    });
+
 };
 
 module.exports = SocketServer;

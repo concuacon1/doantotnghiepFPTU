@@ -2,10 +2,12 @@
 const ContractSchema = require("../models/contract.model");
 const ProjectSchema = require("../models/project.model")
 const CategoriesSchema = require("../models/categories.model")
+const moment = require('moment')
 const UserSchema = require('../models/user.model');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 const emailQueue = require('../queue/sendEmailQueue');
+const convertUtcToGmt7 = require("../helper/formatTimeZone");
 
 const contract = {
     create_contract: async (req, res) => {
@@ -74,23 +76,51 @@ const contract = {
                     ],
                     as: 'customerData'
                 }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    let: { designerId: '$designerId' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ['$_id', '$$designerId'] }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1,
+                                email: 1 // Include other fields you want to retrieve
+                            }
+                        }
+                    ],
+                    as: 'designerData'
+                }
             }
         ]);
+        const yesterday = convertUtcToGmt7.getCreatedTimezone(new Date());
+        console.log('yesterday == ', yesterday);
+        console.log('today == ', new Date());
+        const query = { createdAt: { $gte: yesterday, $lt: new Date() } };
+        const countFind = await ContractSchema.countDocuments(query);
 
         return res.json({
             message: "get list success",
             data: {
-                listContract: listData
+                listContract: listData,
+                count: countFind
             }
         })
     },
     list_contract_user: async (req, res) => {
         const custormerId = req.dataToken.id;
-
+        console.log('custormerId == ', custormerId);
         const listData = await ContractSchema.aggregate([
             {
                 $match: {
-                    isDelete: false
+                    isDelete: false,
+                    custormerId: ObjectId(custormerId)
                 }
             },
             {
@@ -112,6 +142,27 @@ const contract = {
                         }
                     ],
                     as: 'customerData'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    let: { designerId: '$designerId' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ['$_id', '$$designerId'] }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                fullName: 1,
+                                email: 1 // Include other fields you want to retrieve
+                            }
+                        }
+                    ],
+                    as: 'designerData'
                 }
             }
         ]);
@@ -138,9 +189,9 @@ const contract = {
     },
 
     email_consulation: async (req, res) => {
-        const { emailCustomer, fullName, phone, note } = req.body
+        const { emailCustomer, fullName, phone, note, address } = req.body
         const dataSendEamil = {
-            emailCustomer, fullName, phone, note
+            emailCustomer, fullName, phone, note, address
         };
         await emailQueue.add('send-customer-consulation', dataSendEamil);
         return res.json({
@@ -171,6 +222,7 @@ const contract = {
                 $and: [
                     { codeContract: { $regex: new RegExp(codeContract, 'i') } },
                     { nameSignature: { $regex: new RegExp(nameSignature, 'i') } },
+                    { isDelete: false },
                 ]
             }
         });
@@ -190,6 +242,14 @@ const contract = {
                 preserveNullAndEmptyArrays: true
             }
         });
+        pipeline.push({
+            $lookup: {
+                from: 'users',
+                localField: 'designerId',
+                foreignField: '_id',
+                as: 'designerData'
+            }
+        })
 
         pipeline.push({
             $match: {
